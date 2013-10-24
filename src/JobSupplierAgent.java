@@ -41,18 +41,22 @@ public class JobSupplierAgent extends Agent{
 	    template = MessageTemplate.MatchPerformative( ACLMessage.QUERY_REF ); 
 		System.out.println("DEBUG2");
 		
-		addBehaviour(new CyclicBehaviour(this) 
+		addBehaviour(new CyclicBehaviour(this)
 	      {
 
 			private static final long serialVersionUID = 8693491533514569273L;
 
-			public void action() 
+			public void action()  
 	         {
 	            ACLMessage msg = receive( template );
 	            if (msg!=null) {
 	                reply = msg.createReply();
 	                reply.setPerformative( ACLMessage.INFORM );
-	                reply.setContent("joblist");
+	                try {
+						reply.setContentObject(joblist);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 	                send(reply);
 	             }
 	             block();
