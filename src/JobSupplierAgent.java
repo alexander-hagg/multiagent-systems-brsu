@@ -37,9 +37,7 @@ public class JobSupplierAgent extends Agent{
 			printJobs();
 		}
 		
-		System.out.println("DEBUG1");
 	    template = MessageTemplate.MatchPerformative( ACLMessage.QUERY_REF ); 
-		System.out.println("DEBUG2");
 		
 		addBehaviour(new CyclicBehaviour(this)
 	      {
@@ -58,12 +56,10 @@ public class JobSupplierAgent extends Agent{
 						e.printStackTrace();
 					}
 	                send(reply);
-	             }
-	             block();
+	            }
+	            block();
 	         }
-	      });
-		System.out.println("DEBUG3");
-		
+	      });		
 		
 	}
 	
