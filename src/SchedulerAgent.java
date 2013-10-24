@@ -14,7 +14,7 @@ public class SchedulerAgent extends Agent {
 	
 	
 	protected void setup() {
-		System.out.println("SchedulingVisualizer "+ getAID().getName() + " is ready.");
+		System.out.println("SchedulerAgent "+ getAID().getName() + " is ready.");
 		
 		msg = newMsg( 	ACLMessage.QUERY_REF, "",
                 		new AID( "jobSupplier1", AID.ISLOCALNAME) );
