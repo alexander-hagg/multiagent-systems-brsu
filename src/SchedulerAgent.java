@@ -1,7 +1,10 @@
+import java.util.ArrayList;
+
 import jade.core.Agent;
 import jade.core.AID;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.UnreadableException;
 
 public class SchedulerAgent extends Agent {
 
@@ -10,8 +13,8 @@ public class SchedulerAgent extends Agent {
 	String cidBase;
 	private ACLMessage msg;
 	private MessageTemplate template;
+	ArrayList<Job> joblist = new ArrayList<Job>();
 
-	
 	
 	protected void setup() {
 		System.out.println("SchedulerAgent "+ getAID().getName() + " is ready.");
@@ -31,7 +34,14 @@ public class SchedulerAgent extends Agent {
 				if (msg == null) 
 					System.out.println("SchedulerAgent: Timeout");
 				else 
-					System.out.println("SchedulerAgent received jobs: $"+ msg);
+					System.out.println("SchedulerAgent received jobs \n=======================");
+					try {
+						joblist = (ArrayList<Job>) msg.getContentObject();
+						for (int i = 0; i < joblist.size(); i++)
+							System.out.println(joblist.get(i).name + "\n" + joblist.get(i).duration);
+					} catch (UnreadableException e) {
+						e.printStackTrace();
+					}
   
            }
         });
