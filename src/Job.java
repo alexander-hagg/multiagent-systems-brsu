@@ -27,7 +27,7 @@ public class Job implements Serializable, java.lang.Comparable<Job> {
 	public int compareTo(Job o) {
 		if (this.duration > o.duration)
 			return 1;
-		else if (this.duration > o.duration)
+		else if (this.duration < o.duration)
 			return -1;
 		else 
 			return 0;
