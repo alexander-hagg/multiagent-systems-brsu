@@ -1,13 +1,17 @@
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
 import jade.core.Agent;
 import jade.core.AID;
+import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.SequentialBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
+import jade.core.behaviours.TickerBehaviour;
 import jade.domain.AMSService;
 import jade.domain.FIPAAgentManagement.AMSAgentDescription;
 import jade.domain.FIPAAgentManagement.SearchConstraints;
+import jade.domain.introspection.AddedBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
@@ -21,13 +25,10 @@ public class SchedulingVisualizer extends Agent {
 	protected static int cidCnt = 0;
 	String cidBase;
 	private ACLMessage msg;
-	private MessageTemplate template;
+	private MessageTemplate template, templateSchedule;
 	AMSAgentDescription [] agents = null;
 	ArrayList<Integer> schedule = new ArrayList<Integer>();
 
-	
-	//private AID[] sellerAgents = {new AID("seller1", AID.ISLOCALNAME),
-	
 	protected void setup() {
 		System.out.println("SchedulingVisualizer "+getAID().getName()+" is ready.");
 		try {
@@ -51,44 +52,46 @@ public class SchedulingVisualizer extends Agent {
 		template = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.INFORM ),
 				MessageTemplate.MatchConversationId( msg.getConversationId() ));
 
-		SequentialBehaviour seq = new SequentialBehaviour();
+		addBehaviour( new TickerBehaviour( this, 1000 )
+		{
+			private static final long serialVersionUID = -7184254332416821810L;
+			
+			protected void onTick() {
+				for (AMSAgentDescription agent: agents) {
+					msg.addReceiver( agent.getName() );
+				}
+				send ( msg );
+			}
+		}) ;
 		
-		seq.addSubBehaviour( new myReceiver(this, 1000, template )
-			{
-				private static final long serialVersionUID = 8693553115914569273L;
+		templateSchedule = MessageTemplate.MatchPerformative( ACLMessage.INFORM ); 
+		
+	
+		addBehaviour( new CyclicBehaviour(this)
+	      {
+			private static final long serialVersionUID = -8703203027122857880L;
 
-				public void handle( ACLMessage msg ) 
-				{  
-					if (msg == null) 
-						System.out.println("SchedulerAgentVisualizer: Timeout");
-					else 
-						System.out.println("SchedulerAgentVisualizer received schedule \n=======================");
+			public void action()  
+	         {
+	            ACLMessage msg = receive( templateSchedule );
+	            if (msg == null) 
+					System.out.println("SchedulerAgentVisualizer: Timeout");
+				else  {
+					System.out.println("SchedulerAgentVisualizer received schedule \n=======================");
 					try {
-						schedule = (ArrayList<Integer>) msg.getContentObject();						
+						schedule = (ArrayList<Integer>) msg.getContentObject();
+						System.out.println("SCHEDULE:\n");
+						for (int job : schedule)
+							System.out.println(job + "\n");
 					} catch (UnreadableException e) {
 						e.printStackTrace();
 					}
 				}
+	            block();
+	         }
+			
 		});
 		
-		seq.addSubBehaviour( new SimpleBehaviour() {
-			boolean done = false;
-			public boolean done() {
-				return done;
-			}
-		
-			@Override
-			public void action() {
-				// TODO build graphical representation of received schedule(s)
-				System.out.println("SCHEDULE:\n");
-				for (int job : schedule)
-					System.out.println(job + "\n");
-				done = true;
-			}
-		});
-		
-		addBehaviour( seq );
-		send ( msg );
 	}
 	
 	protected void takeDown() {
