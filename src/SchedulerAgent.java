@@ -5,6 +5,8 @@ import jade.core.AID;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
+import jade.domain.AMSService;
+import jade.domain.FIPAAgentManagement.*;
 
 public class SchedulerAgent extends Agent {
 
@@ -14,17 +16,33 @@ public class SchedulerAgent extends Agent {
 	private ACLMessage msg;
 	private MessageTemplate template;
 	ArrayList<Job> joblist = new ArrayList<Job>();
+	AMSAgentDescription [] agents = null;
 
 	
 	protected void setup() {
 		System.out.println("SchedulerAgent "+ getAID().getName() + " is ready.");
 		
-		msg = newMsg( 	ACLMessage.QUERY_REF, "",
-                		new AID( "jobSupplier1", AID.ISLOCALNAME) );
+		// Find all other agents
+		// TODO: only want jobsuppliers here!
+		try {
+            SearchConstraints c = new SearchConstraints();
+            c.setMaxResults (new Long(-1));
+			agents = AMSService.search( this, new AMSAgentDescription (), c );
+		}
+		catch ( Exception e ) {
+            System.out.println( "Problem searching AMS: " + e );
+            e.printStackTrace();
+		}
+		
+		msg = newMsg( ACLMessage.QUERY_REF );
+		
+		for (int i=0; i<agents.length;i++)
+            msg.addReceiver( agents[i].getName() ); 
+
 		
 		template = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.INFORM ),
 	            						MessageTemplate.MatchConversationId( msg.getConversationId() ));
-		
+				
 		addBehaviour( new myReceiver(this, 1000, template )
         {
 			private static final long serialVersionUID = 8693491577914569273L;
