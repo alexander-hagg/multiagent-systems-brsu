@@ -16,9 +16,6 @@ public class JobSupplierAgent extends Agent{
 	String filename = "";
 	ArrayList<Job> joblist = new ArrayList<Job>();
 	public MessageTemplate template;
-	private long    timeOut, 
-	                wakeupTime;
-	private boolean finished;
 	private ACLMessage msg, reply;
 	protected static int cidCnt = 0;
 	String cidBase;
@@ -47,7 +44,7 @@ public class JobSupplierAgent extends Agent{
 			public void action()  
 	         {
 	            ACLMessage msg = receive( template );
-	            if (msg!=null) {
+	            if (msg!=null && msg.getContent().equals("joblist")) {
 	                reply = msg.createReply();
 	                reply.setPerformative( ACLMessage.INFORM );
 	                try {

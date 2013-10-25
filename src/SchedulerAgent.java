@@ -1,8 +1,10 @@
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
 import jade.core.Agent;
 import jade.core.AID;
+import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.SequentialBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.MessageTemplate;
@@ -16,9 +18,10 @@ public class SchedulerAgent extends Agent {
 	private static final long serialVersionUID = -6918861190459111898L;
 	protected static int cidCnt = 0;
 	String cidBase;
-	private ACLMessage msg;
-	private MessageTemplate template;
+	private ACLMessage msg, reply;
+	private MessageTemplate templateJoblist, templateSchedule;
 	ArrayList<Job> joblist = new ArrayList<Job>();
+	ArrayList<Integer> schedule = new ArrayList<Integer>();
 	AMSAgentDescription [] agents = null;
 
 	
@@ -39,18 +42,19 @@ public class SchedulerAgent extends Agent {
 		}
 		
 		msg = newMsg( ACLMessage.QUERY_REF );
+		msg.setContent("joblist");
 		
 		for (AMSAgentDescription agent: agents) {
 			msg.addReceiver( agent.getName() );
 		}
 			 
 				
-		template = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.INFORM ),
+		templateJoblist = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.INFORM ),
 	            						MessageTemplate.MatchConversationId( msg.getConversationId() ));
 				
 		SequentialBehaviour seq = new SequentialBehaviour();
 
-		seq.addSubBehaviour( new myReceiver(this, 1000, template )
+		seq.addSubBehaviour( new myReceiver(this, 1000, templateJoblist )
         {
 			private static final long serialVersionUID = 8693491577914569273L;
 
@@ -85,8 +89,10 @@ public class SchedulerAgent extends Agent {
 			public void action() {
 				Collections.sort(joblist);
 				System.out.println("\n\n AFTER SORTING\n");
-				for (Job job : joblist)
+				for (Job job : joblist) {
+					schedule.add(job.duration);
 					System.out.println(job.name + "\n" + job.duration);
+				}
 				System.out.println("\n");
 				done = true;
 			}
@@ -94,8 +100,32 @@ public class SchedulerAgent extends Agent {
 
 		addBehaviour( seq );
 
-      
+		templateSchedule = MessageTemplate.MatchPerformative( ACLMessage.QUERY_REF ); 
+		
+		addBehaviour(new CyclicBehaviour(this)
+	      {
+
+			private static final long serialVersionUID = 8693491533424444273L;
+
+			public void action()  
+	         {
+	            ACLMessage msg = receive( templateSchedule );
+	            if (msg!=null&& msg.getContent().equals("schedule")) {
+	                reply = msg.createReply();
+	                reply.setPerformative( ACLMessage.INFORM );
+	                try {
+						reply.setContentObject(schedule);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+	                send(reply);
+	            }
+	            block();
+	         }
+	      });	
 		send ( msg );
+		
+		
 		
 	}
 	
@@ -104,7 +134,6 @@ public class SchedulerAgent extends Agent {
 		System.out.println("SchedulingVisualizer "+getAID().getName()+" terminating.");
 	}
 	
-	// helper methods
 	protected String genCID() { 
 		if (cidBase==null) {
 			cidBase = getLocalName() + hashCode() +
