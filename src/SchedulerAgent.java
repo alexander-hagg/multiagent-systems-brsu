@@ -62,8 +62,10 @@ public class SchedulerAgent extends Agent {
 					System.out.println("SchedulerAgent received jobs \n=======================");
 					try {
 						joblist = (ArrayList<Job>) msg.getContentObject();
+						System.out.println("\n\n BEFORE SORTING\n");
 						for (Job job : joblist)
 							System.out.println(job.name + "\n" + job.duration);
+						System.out.println("\n");
 					} catch (UnreadableException e) {
 						e.printStackTrace();
 					}
@@ -82,6 +84,10 @@ public class SchedulerAgent extends Agent {
 			@Override
 			public void action() {
 				Collections.sort(joblist);
+				System.out.println("\n\n AFTER SORTING\n");
+				for (Job job : joblist)
+					System.out.println(job.name + "\n" + job.duration);
+				System.out.println("\n");
 				done = true;
 			}
         });
