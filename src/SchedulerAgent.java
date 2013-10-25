@@ -23,11 +23,12 @@ public class SchedulerAgent extends Agent {
 		System.out.println("SchedulerAgent "+ getAID().getName() + " is ready.");
 		
 		// Find all other agents
-		// TODO: only want jobsuppliers here!
+		// TODO: look for JobSupplierAgents only
 		try {
             SearchConstraints c = new SearchConstraints();
             c.setMaxResults (new Long(-1));
-			agents = AMSService.search( this, new AMSAgentDescription (), c );
+            AMSAgentDescription description = new AMSAgentDescription();
+			agents = AMSService.search( this, description, c );
 		}
 		catch ( Exception e ) {
             System.out.println( "Problem searching AMS: " + e );
@@ -36,10 +37,12 @@ public class SchedulerAgent extends Agent {
 		
 		msg = newMsg( ACLMessage.QUERY_REF );
 		
-		for (int i=0; i<agents.length;i++)
-            msg.addReceiver( agents[i].getName() ); 
-
-		
+		for (int i=0; i<agents.length;i++) {
+			System.out.println("\n\n-----------------" + agents[i].getClass().getName() + "\n-----------------\n");
+				msg.addReceiver( agents[i].getName() );
+		}
+			 
+				
 		template = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.INFORM ),
 	            						MessageTemplate.MatchConversationId( msg.getConversationId() ));
 				
