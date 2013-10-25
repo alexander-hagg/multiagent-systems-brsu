@@ -1,7 +1,10 @@
 import java.util.ArrayList;
+import java.util.Collections;
 
 import jade.core.Agent;
 import jade.core.AID;
+import jade.core.behaviours.SequentialBehaviour;
+import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
@@ -37,16 +40,17 @@ public class SchedulerAgent extends Agent {
 		
 		msg = newMsg( ACLMessage.QUERY_REF );
 		
-		for (int i=0; i<agents.length;i++) {
-			System.out.println("\n\n-----------------" + agents[i].getClass().getName() + "\n-----------------\n");
-				msg.addReceiver( agents[i].getName() );
+		for (AMSAgentDescription agent: agents) {
+			msg.addReceiver( agent.getName() );
 		}
 			 
 				
 		template = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.INFORM ),
 	            						MessageTemplate.MatchConversationId( msg.getConversationId() ));
 				
-		addBehaviour( new myReceiver(this, 1000, template )
+		SequentialBehaviour seq = new SequentialBehaviour();
+
+		seq.addSubBehaviour( new myReceiver(this, 1000, template )
         {
 			private static final long serialVersionUID = 8693491577914569273L;
 
@@ -58,14 +62,32 @@ public class SchedulerAgent extends Agent {
 					System.out.println("SchedulerAgent received jobs \n=======================");
 					try {
 						joblist = (ArrayList<Job>) msg.getContentObject();
-						for (int i = 0; i < joblist.size(); i++)
-							System.out.println(joblist.get(i).name + "\n" + joblist.get(i).duration);
+						for (Job job : joblist)
+							System.out.println(job.name + "\n" + job.duration);
 					} catch (UnreadableException e) {
 						e.printStackTrace();
 					}
   
            }
         });
+		
+		seq.addSubBehaviour( new SimpleBehaviour() {
+			
+			private static final long serialVersionUID = -7951492880959885049L;
+			boolean done = false;
+			public boolean done() {
+				return done;
+			}
+			
+			@Override
+			public void action() {
+				Collections.sort(joblist);
+				done = true;
+			}
+        });
+
+		addBehaviour( seq );
+
       
 		send ( msg );
 		
