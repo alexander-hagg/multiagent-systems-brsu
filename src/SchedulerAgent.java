@@ -18,7 +18,7 @@ public class SchedulerAgent extends Agent {
 	private static final long serialVersionUID = -6918861190459111898L;
 	protected static int cidCnt = 0;
 	String cidBase;
-	private ACLMessage msg, reply;
+	private ACLMessage message, reply;
 	private MessageTemplate templateJoblist, templateSchedule;
 	ArrayList<Job> joblist = new ArrayList<Job>();
 	ArrayList<Integer> schedule = new ArrayList<Integer>();
@@ -41,16 +41,16 @@ public class SchedulerAgent extends Agent {
             e.printStackTrace();
 		}
 		
-		msg = newMsg( ACLMessage.QUERY_REF );
-		msg.setContent("joblist");
+		message = newMsg( ACLMessage.QUERY_REF );
+		message.setContent("joblist");
 		
 		for (AMSAgentDescription agent: agents) {
-			msg.addReceiver( agent.getName() );
+			message.addReceiver( agent.getName() );
 		}
 			 
 				
 		templateJoblist = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.INFORM ),
-	            						MessageTemplate.MatchConversationId( msg.getConversationId() ));
+	            						MessageTemplate.MatchConversationId( message.getConversationId() ));
 				
 		SequentialBehaviour seq = new SequentialBehaviour();
 
@@ -110,7 +110,7 @@ public class SchedulerAgent extends Agent {
 			public void action()  
 	         {
 	            ACLMessage msg = receive( templateSchedule );
-	            if (msg!=null&& msg.getContent().equals("schedule")) {
+	            if (msg!=null&& msg.getContent().equals("schedule")) { 
 	                reply = msg.createReply();
 	                reply.setPerformative( ACLMessage.INFORM );
 	                try {
@@ -123,7 +123,7 @@ public class SchedulerAgent extends Agent {
 	            block();
 	         }
 	      });	
-		send ( msg );
+		send ( message );
 		
 		
 		
@@ -142,7 +142,7 @@ public class SchedulerAgent extends Agent {
 		return cidBase + (cidCnt++); 
 	}
 	
-	protected ACLMessage getMessage() { return msg; }
+	protected ACLMessage getMessage() { return message; }
 	
 	ACLMessage newMsg( int perf, String content, AID dest) {
 		ACLMessage msg = newMsg(perf);
