@@ -1,9 +1,0 @@
-
-$ cd ~/jade
-$ javac -classpath lib/jade.jar -d classes/multiagent-systems-brsu src/multiagent-systems-brsu/src/Job.java src/multiagent-systems-brsu/src/JobSupplierAgent.java src/multiagent-systems-brsu/src/myReceiver.java src/multiagent-systems-brsu/src/SchedulerAgent.java src/multiagent-systems-brsu/src/SchedulingVisualizer.java
-
-
-
-$ cd ~/jade
-$ java -cp lib/jade.jar:classes/multiagent-systems-brsu/ jade.Boot -gui -agents "supplier:JobSupplierAgent;schedular:SchedulerAgent;visualizer:SchedulingVisualizer"
->> edit filename to "src/multiagent-systems-brsu/jobs"

@@ -24,17 +24,15 @@ public class JobSupplierAgent extends Agent{
 		System.out.println("JobSupplierAgent "+ getAID().getName()+" is ready.");
 		Object[] args = getArguments();
 		
-		//if (args != null && args.length > 0) {
-		//	filename = (String) args[0];
-		    filename = "src/multiagent-systems-brsu/jobs";
-			System.out.println("FILENAME" + filename);
+		if (args != null && args.length > 0) {
+			filename = (String) args[0];
 			try {
 				readJobs();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			printJobs();
-		//}
+		}
 		
 	    template = MessageTemplate.MatchPerformative( ACLMessage.QUERY_REF ); 
 		

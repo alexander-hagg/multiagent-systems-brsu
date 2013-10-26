@@ -3,7 +3,7 @@
 	<classpathentry excluding="src/" kind="src" path=""/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/home/obada/jade/lib/jade.jar"/>
-	<classpathentry kind="lib" path="/home/obada/jade/lib/commons-codec/commons-codec-1.3.jar"/>
+	<classpathentry kind="lib" path="/home/alex/Documents/FH/MAS/Semester 3/Multiagent/JADE-all-4.3.0/jade/lib/jade.jar"/>
+	<classpathentry kind="lib" path="/home/alex/Documents/FH/MAS/Semester 3/Multiagent/JADE-all-4.3.0/jade/lib/commons-codec/commons-codec-1.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
