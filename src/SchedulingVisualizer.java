@@ -2,6 +2,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import org.omg.CORBA.PRIVATE_MEMBER;
+
 import jade.core.Agent;
 import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
@@ -28,7 +30,8 @@ public class SchedulingVisualizer extends Agent {
 	private MessageTemplate template, templateSchedule;
 	AMSAgentDescription [] agents = null;
 	ArrayList<Integer> schedule = new ArrayList<Integer>();
-
+	SchedulingVisualizerGui visGui =  new SchedulingVisualizerGui();
+	
 	protected void setup() {
 		System.out.println("SchedulingVisualizer "+getAID().getName()+" is ready.");
 		try {
@@ -81,8 +84,13 @@ public class SchedulingVisualizer extends Agent {
 					try {
 						schedule = (ArrayList<Integer>) msg.getContentObject();
 						System.out.println("SCHEDULE:\n");
-						for (int job : schedule)
+						int totalTime = 0;
+						for (int job : schedule) {
 							System.out.println(job + "\n");
+							totalTime += job;
+						}
+						//DISPLAY GUI
+						visGui.showGui(schedule, totalTime);
 					} catch (UnreadableException e) {
 						e.printStackTrace();
 					}
