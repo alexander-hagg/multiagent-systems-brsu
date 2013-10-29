@@ -1,12 +1,4 @@
-//
-//		myReceiver:   a more user friendly ReceiverBehaviour
-//
-//		Creation: new myReceiver(Agent, Timeout (or -1), MessageTemplate )
-//
-//			- terminates when 1) desired message is received OR timeout expires
-//       - on termination, handle(msg) is called
-//                          ( J.Vaucher sept. 7 2003 )
-// ---------------------------------------------------------------------------
+package multiagent_scheduler;
 
 import jade.core.Agent;
 import jade.core.behaviours.*;

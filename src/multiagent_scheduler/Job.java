@@ -1,3 +1,5 @@
+package multiagent_scheduler;
+
 import jade.util.leap.Serializable;
 
 

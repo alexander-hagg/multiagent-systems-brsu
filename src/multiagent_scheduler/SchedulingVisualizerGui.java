@@ -1,3 +1,5 @@
+package multiagent_scheduler;
+
 import java.awt.*;
 import java.util.*;
 import javax.swing.*;
