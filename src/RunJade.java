@@ -1,9 +1,7 @@
-import jade.core.Agent;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
 
-import jade.util.leap.Iterator;
 import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
@@ -14,37 +12,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-
-
-/**
- * The Jade's documentation is bad, you can hardly find how to launch a platform from source code.  
- * I hope these few classes will be useful.
- * 
- * Here:  1 main container, 3 containers, 4 agents
- * Agent0 on container0
- * Agent1 and Agent3 on container1
- * Agent2 on container2
- * 
- * Agent0 will send a message to agent1 that's all :)
- * 
- * The "pause" when launching the platform  is just created to let you the possibility to activate the sniffer agent from its GUI in order to sniff the agents and to graphicaly see the message passing.
- * In any case, I chose here to print the sent/received on the standard output.
- * 
- * For sake of simplicity, the creation of the containers and of the agents is hardcoded, and I do not activate the sniffer.  It is bad.
- * 
- * 
- * Tested with Jade 3.7 and Jade 4.0
- * 
- * 
- * @author Cedric Herpson
- *
- */
-
 public class RunJade {
 
 	private static String hostname = "localhost"; 
 	private static HashMap<String, ContainerController> containerList=new HashMap<String, ContainerController>();// container's name - container's ref
-	private static List<AgentController> agentList;// agents's ref
+	private static List<AgentController> agentList;
 	private static Runtime rt;	
 
 	public static void main(String[] args){
