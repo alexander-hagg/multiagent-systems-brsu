@@ -10,17 +10,23 @@ public class SchedulingVisualizerGui extends JFrame{
      */
     private static final long serialVersionUID = -2270153591712211843L;
     JPanel panel;
+    MyComponent component;
     
     public void showGui(ArrayList<Integer> schedule, int totalTime) {
         panel = new JPanel();
         
         getContentPane().add(panel, BorderLayout.CENTER);
-        final MyComponent component = new MyComponent();
+        component = new MyComponent();
         component.setOriginAndSize(schedule, totalTime);
         panel.add(component, BorderLayout.CENTER);
         
         pack();
         super.setVisible(true);
+    }
+    
+    public void refreshGui(ArrayList<Integer> schedule, int totalTime) {
+    	component.setOriginAndSize(schedule, totalTime);
+    	panel.revalidate();
     }
 }
 

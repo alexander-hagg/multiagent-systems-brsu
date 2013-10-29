@@ -26,6 +26,7 @@ public class SchedulingVisualizer extends Agent {
 	AMSAgentDescription [] agents = null;
 	ArrayList<Integer> schedule = new ArrayList<Integer>();
 	SchedulingVisualizerGui visGui =  new SchedulingVisualizerGui();
+	private boolean guiSetup = false;
 	
 	protected void setup() {
 		System.out.println("SchedulingVisualizer "+getAID().getName()+" is ready.");
@@ -84,8 +85,15 @@ public class SchedulingVisualizer extends Agent {
 							System.out.println(job + "\n");
 							totalTime += job;
 						}
+						
 						//DISPLAY GUI
-						visGui.showGui(schedule, totalTime);
+						if (!guiSetup) {
+							visGui.showGui(schedule, totalTime);
+							guiSetup = true;
+						} else {
+							visGui.refreshGui(schedule, totalTime);
+						}
+						
 					} catch (UnreadableException e) {
 						e.printStackTrace();
 					}
