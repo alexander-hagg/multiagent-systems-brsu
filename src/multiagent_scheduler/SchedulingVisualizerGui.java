@@ -82,7 +82,7 @@ class MyComponent extends JComponent
         color.add(Color.gray);
         
         for (Job job : schedule) {
-        	y = count * (graphHeight + graphBorder);
+        	y = graphBorder;
             g.setColor(color.get(count));
             jobTime = (width * job.duration) / totalTime;
             g.fillRect(x, y, jobTime, graphHeight);
