@@ -1,0 +1,93 @@
+Launching containers done
+Launching the rma agent on the main container ...
+Plaform ok
+Launching agents...
+JobSupplier1 launched
+Scheduler1 launched
+SchedulingVisualizer1 launched
+Agents launched...
+Press a key to start the agents
+
+Starting agents...
+JobSupplierAgent JobSupplier1@127.0.1.1:8888/JADE is ready.
+SchedulerAgent Scheduler1@127.0.1.1:8888/JADE is ready.
+list of jobs:
+job name		duration
+=========================================
+job1			5 hours
+job2			2 hours
+job3			1 hours
+job4			13 hours
+job5			11 hours
+job6			2 hours
+job7			4 hours
+=========================================
+Agents started...
+SchedulingVisualizer SchedulingVisualizer1@127.0.1.1:8888/JADE is ready.
+SchedulerAgentVisualizer: Timeout
+job schedule:
+job name		duration
+=========================================
+job3			1 hours
+job2			2 hours
+job6			2 hours
+job7			4 hours
+job1			5 hours
+job5			11 hours
+job4			13 hours
+=========================================
+
+
+
+list of jobs:
+job name		duration
+=========================================
+job1			13 hours
+job2			4 hours
+job3			21 hours
+job4			13 hours
+job5			12 hours
+job6			2 hours
+=========================================
+SchedulerAgentVisualizer: Timeout
+SchedulerAgentVisualizer: Timeout
+job schedule:
+job name		duration
+=========================================
+job6			2 hours
+job2			4 hours
+job5			12 hours
+job1			13 hours
+job4			13 hours
+job3			21 hours
+=========================================
+
+
+
+list of jobs:
+job name		duration
+=========================================
+job1			18 hours
+job2			2 hours
+job3			10 hours
+job4			15 hours
+job5			5 hours
+job6			5 hours
+job7			5 hours
+job8			11 hours
+job9			5 hours
+=========================================
+SchedulerAgentVisualizer: Timeout
+job schedule:
+job name		duration
+=========================================
+job2			2 hours
+job5			5 hours
+job6			5 hours
+job7			5 hours
+job9			5 hours
+job3			10 hours
+job8			11 hours
+job4			15 hours
+job1			18 hours
+=========================================
