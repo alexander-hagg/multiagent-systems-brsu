@@ -37,7 +37,7 @@ class MyComponent extends JComponent
      */
     private static final long serialVersionUID = -7469521325933120496L;
     private int width = 800;
-    private int windowHeight = 100;
+    private int windowHeight = 18;
     private int graphHeight = 15;
     private int graphBorder = 3;
     private ArrayList<Job> schedule;
@@ -53,6 +53,7 @@ class MyComponent extends JComponent
     {
         this.schedule = schedule;
         this.totalTime = totalTime;
+        windowHeight = 18 * schedule.size();
         repaint();
     }
 
@@ -78,7 +79,7 @@ class MyComponent extends JComponent
         color.add(Color.green);
         color.add(Color.cyan);
         color.add(Color.blue);
-        color.add(Color.black);
+        color.add(Color.gray);
         
         for (Job job : schedule) {
         	y = count * (graphHeight + graphBorder);

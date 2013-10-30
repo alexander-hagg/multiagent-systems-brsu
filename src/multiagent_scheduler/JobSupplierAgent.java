@@ -16,7 +16,7 @@ public class JobSupplierAgent extends Agent{
 	
 	private static final long serialVersionUID = -6918861190459111898L;
 	String filename = "";
-	ArrayList<Job> joblist = new ArrayList<Job>();
+	ArrayList<Job> joblist;
 	public MessageTemplate template;
 	private ACLMessage msg, reply;
 	protected static int cidCnt = 0;
@@ -29,11 +29,11 @@ public class JobSupplierAgent extends Agent{
 		if (args != null && args.length > 0) {
 			filename = (String) args[0];
 			try {
-				readJobs();
+				joblist = read(filename);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			printJobs();
+			print(joblist);
 		}
 		
 	    template = MessageTemplate.MatchPerformative( ACLMessage.QUERY_REF ); 
@@ -66,7 +66,8 @@ public class JobSupplierAgent extends Agent{
 		System.out.println("JobSupplierAgent "+getAID().getName()+" terminating.");
 	}
 	
-	protected void readJobs() throws IOException {
+	protected ArrayList<Job> read(String filename) throws IOException {
+		ArrayList<Job> joblist = new ArrayList<Job>();
 		FileReader fileReader = new FileReader(filename);
 		BufferedReader bufferedReader = new BufferedReader(fileReader);
 		String line;
@@ -80,13 +81,15 @@ public class JobSupplierAgent extends Agent{
 		}
 		bufferedReader.close();
 		fileReader.close();
-		return;
+		return joblist;
 	}
 	
-	protected void printJobs() {
+	protected void print(ArrayList<Job> joblist) {
+		System.out.println("list of jobs:\njob name\t\tduration\n=========================================");
 		for(int i = 0; i < joblist.size(); i++) {
-			System.out.println(joblist.get(i).getName() + " - " + joblist.get(i).getDuration() + "\n");
-		}		
+			System.out.println(joblist.get(i).getName() + "\t\t\t" + joblist.get(i).getDuration() + " hours");
+		}
+		System.out.println("=========================================");
 	}
 	
 	protected ACLMessage getMessage() { return msg; }

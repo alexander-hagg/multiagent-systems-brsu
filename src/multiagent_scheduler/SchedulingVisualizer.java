@@ -29,7 +29,7 @@ public class SchedulingVisualizer extends Agent {
 	private boolean guiSetup = false;
 	
 	protected void setup() {
-		System.out.println("SchedulingVisualizer "+getAID().getName()+" is ready.");
+		System.out.println("SchedulingVisualizer " + getAID().getName() + " is ready.");
 		try {
             SearchConstraints c = new SearchConstraints();
             c.setMaxResults (new Long(-1));
@@ -76,13 +76,11 @@ public class SchedulingVisualizer extends Agent {
 	            if (msg == null) 
 					System.out.println("SchedulerAgentVisualizer: Timeout");
 				else  {
-					System.out.println("SchedulerAgentVisualizer received schedule \n=======================");
 					try {
 						schedule = (ArrayList<Job>) msg.getContentObject();
-						System.out.println("SCHEDULE:\n");
+						print(schedule);
 						int totalTime = 0;
 						for (Job job : schedule) {
-							System.out.println(job.name + " " + job.duration + "\n");
 							totalTime += job.duration;
 						}
 						
@@ -106,8 +104,15 @@ public class SchedulingVisualizer extends Agent {
 	}
 	
 	protected void takeDown() {
+		System.out.println("SchedulingVisualizer " + getAID().getName() + " terminating.");
+	}
 	
-		System.out.println("SchedulingVisualizer "+getAID().getName()+" terminating.");
+	protected void print(ArrayList<Job> joblist) {
+		System.out.println("job schedule:\njob name\t\tduration\n=========================================");
+		for(int i = 0; i < joblist.size(); i++) {
+			System.out.println(joblist.get(i).getName() + "\t\t\t" + joblist.get(i).getDuration() + " hours");
+		}
+		System.out.println("=========================================");
 	}
 
 	protected String genCID() { 
