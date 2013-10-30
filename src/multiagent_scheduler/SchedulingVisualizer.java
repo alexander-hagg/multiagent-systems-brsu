@@ -24,7 +24,7 @@ public class SchedulingVisualizer extends Agent {
 	private ACLMessage msg;
 	private MessageTemplate template, templateSchedule;
 	AMSAgentDescription [] agents = null;
-	ArrayList<Integer> schedule = new ArrayList<Integer>();
+	ArrayList<Job> schedule = new ArrayList<Job>();
 	SchedulingVisualizerGui visGui =  new SchedulingVisualizerGui();
 	private boolean guiSetup = false;
 	
@@ -78,12 +78,12 @@ public class SchedulingVisualizer extends Agent {
 				else  {
 					System.out.println("SchedulerAgentVisualizer received schedule \n=======================");
 					try {
-						schedule = (ArrayList<Integer>) msg.getContentObject();
+						schedule = (ArrayList<Job>) msg.getContentObject();
 						System.out.println("SCHEDULE:\n");
 						int totalTime = 0;
-						for (int job : schedule) {
-							System.out.println(job + "\n");
-							totalTime += job;
+						for (Job job : schedule) {
+							System.out.println(job.name + " " + job.duration + "\n");
+							totalTime += job.duration;
 						}
 						
 						//DISPLAY GUI

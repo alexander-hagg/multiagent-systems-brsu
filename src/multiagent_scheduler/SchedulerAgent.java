@@ -23,7 +23,7 @@ public class SchedulerAgent extends Agent {
 	private ACLMessage message, reply;
 	private MessageTemplate templateJoblist, templateSchedule;
 	ArrayList<Job> joblist = new ArrayList<Job>();
-	ArrayList<Integer> schedule = new ArrayList<Integer>();
+	ArrayList<Job> schedule = new ArrayList<Job>();
 	AMSAgentDescription [] agents = null;
 
 	
@@ -92,7 +92,7 @@ public class SchedulerAgent extends Agent {
 				Collections.sort(joblist);
 				System.out.println("\n\n AFTER SORTING\n");
 				for (Job job : joblist) {
-					schedule.add(job.duration);
+					schedule.add(job);
 					System.out.println(job.name + "\n" + job.duration);
 				}
 				System.out.println("\n");
