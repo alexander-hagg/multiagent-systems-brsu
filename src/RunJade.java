@@ -117,7 +117,7 @@ public class RunJade {
 		agentName="SchedulingVisualizer1";
 		try {					
 			Object[] objtab = new Object[]{};//used to give informations to the agent
-			AgentController	ag = c.createNewAgent(agentName,multiagent_scheduler.SchedulingVisualizer.class.getName(),objtab);
+			AgentController	ag = c.createNewAgent(agentName,multiagent_scheduler.SchedulingVisualizerAgent.class.getName(),objtab);
 			agentList.add(ag);
 			System.out.println(agentName + " launched");
 		} catch (StaleProxyException e) {
