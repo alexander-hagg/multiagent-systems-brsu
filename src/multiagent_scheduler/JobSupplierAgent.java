@@ -7,7 +7,6 @@ import java.io.IOException;
 
 import jade.core.Agent;
 import jade.core.AID;
-import jade.util.leap.Iterator;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.ACLMessage;
@@ -53,6 +52,7 @@ public class JobSupplierAgent extends Agent{
 						reply.setContentObject(joblist);
 					} catch (IOException e) {
 						e.printStackTrace();
+						
 					}
 	                send(reply);
 	            }

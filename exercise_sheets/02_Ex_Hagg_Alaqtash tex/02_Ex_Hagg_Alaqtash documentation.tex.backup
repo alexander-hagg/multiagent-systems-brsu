@@ -95,9 +95,6 @@ Jade offers a development and runtime framework enabling quick development of mu
 Development was done using the Eclipse IDE, which enables the integration of the Jade library. Github is used as a versioning 
 and cooperation tool.
 
-The system is in a highly developmental state. The communication behaviours are not optimal and might not be 
-implemented in the same way everywhere, as we are experimenting with different behaviours.
-
 \subsection{Structure}
 
 Three agents were developed:
@@ -131,56 +128,33 @@ from another agent). The behaviour reads the contents of the message and checks 
 Jade constant representing a query message. After this it will check whether the query message contains the ``joblist'' string, which ensures 
 that the agent received a query asking for the job list. Now it will create a reply message containing the ArrayList<Job> of jobs.
 
-The SchedulingVisualizerAgent uses a TickerBehaviour, which is also cyclic. The difference to CyclicBehaviour 
-is the fact that TickerBehaviour is always running at a certain tick rate and does not need to 
-be awakened by an event. This behaviour was chosen because the GUI needs to be updated in 
-regular intervals, ensuring a live view of the schedules. The behaviour only sends messages 
-to other agents and does not handle their replies, as we cannot be sure that any schedulers are active and 
-reachable and do not want to create too much overhead. A CyclicBehaviour was implemented 
-to allow handling of received messages in a similar way as the JobSupplierAgent.
-
-The core of the system lies within the SchedulerAgent, which involves several behaviours. 
-In the current version, a standard query message is sent to all other agents in the system, containing a joblist query. This is done 
-as part of a SequentialBehaviour. The second SubBehaviour of this SequentialBehaviour is the scheduling algorithm itself. A CyclicBehaviour is 
-added as well to enable handling of Visualizer queries.
+The SchedulerAgent 
 
 \subsection{Test results}
 
-Figures \ref{fig1}, \ref{fig2} and \ref{fig3} show the results using three different sets of jobs. We have not been able to test the complete functionality 
-yet and we are not sure whether updates of the joblist in a live system will be received in the GUI.
-
-\begin{figure}[h!]
+\begin{figure}[h]
  \centering
  \includegraphics[width=400pt]{../02_Ex_Hagg_Alaqtash/02_Ex_Hagg_Alaqtash_visual_output_1.png}
  % 02_Ex_Hagg_Alaqtash visual_output 1.png: 807x157 pixel, 72dpi, 28.47x5.54 cm, bb=0 0 807 157
  \caption{Output of the first joblist dataset}
- \label{fig1} 
 \end{figure}
 
 
-\begin{figure}[h!]
+\begin{figure}[h]
  \centering
  \includegraphics[width=400pt]{../02_Ex_Hagg_Alaqtash/02_Ex_Hagg_Alaqtash_visual_output_2.png}
  % 02_Ex_Hagg_Alaqtash visual_output 1.png: 807x157 pixel, 72dpi, 28.47x5.54 cm, bb=0 0 807 157
  \caption{Output of the second joblist dataset}
- \label{fig2} 
 \end{figure}
 
-\begin{figure}[h!]
+\begin{figure}[h]
  \centering
  \includegraphics[width=400pt]{../02_Ex_Hagg_Alaqtash/02_Ex_Hagg_Alaqtash_visual_output_3.png}
  % 02_Ex_Hagg_Alaqtash visual_output 1.png: 807x157 pixel, 72dpi, 28.47x5.54 cm, bb=0 0 807 157
  \caption{Output of the third joblist dataset}
- \label{fig3} 
 \end{figure}
 
 \subsection{Bugs and things to do}
 
-\begin{itemize}
- \item The schedule was implemented in a non-standard way, this will be corrected.
- \item Tests need to be done to check whether data flow behaves as expected.
-\end{itemize}
-
-
-
+schedule (which was implemented in a non-standard way, this will be corrected)
 \end{document}

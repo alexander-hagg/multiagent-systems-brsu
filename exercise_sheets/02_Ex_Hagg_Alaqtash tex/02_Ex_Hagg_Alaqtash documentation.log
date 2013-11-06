@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2013.9.19)  30 OCT 2013 16:57
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2013.9.19)  3 NOV 2013 14:52
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -345,37 +345,71 @@ LaTeX Font Info:    Try loading font information for U+msb on input line 84.
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2009/06/22 v3.00 AMS symbols B
 )
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 88.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 106.
+
 
 (/usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 88.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 106.
  [1
 
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] (./02_Ex_Hagg_Alaqtash doc
-umentation.aux) ) 
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
+<../02_Ex_Hagg_Alaqtash/02_Ex_Hagg_Alaqtash_visual_output_1.png, id=13, 810.026
+25pt x 157.58875pt>
+File: ../02_Ex_Hagg_Alaqtash/02_Ex_Hagg_Alaqtash_visual_output_1.png Graphic fi
+le (type png)
+
+<use ../02_Ex_Hagg_Alaqtash/02_Ex_Hagg_Alaqtash_visual_output_1.png>
+Package pdftex.def Info: ../02_Ex_Hagg_Alaqtash/02_Ex_Hagg_Alaqtash_visual_outp
+ut_1.png used on input line 154.
+(pdftex.def)             Requested size: 400.0pt x 77.8203pt.
+ [2]
+<../02_Ex_Hagg_Alaqtash/02_Ex_Hagg_Alaqtash_visual_output_2.png, id=17, 813.037
+5pt x 138.5175pt>
+File: ../02_Ex_Hagg_Alaqtash/02_Ex_Hagg_Alaqtash_visual_output_2.png Graphic fi
+le (type png)
+
+<use ../02_Ex_Hagg_Alaqtash/02_Ex_Hagg_Alaqtash_visual_output_2.png>
+Package pdftex.def Info: ../02_Ex_Hagg_Alaqtash/02_Ex_Hagg_Alaqtash_visual_outp
+ut_2.png used on input line 163.
+(pdftex.def)             Requested size: 400.0pt x 68.1468pt.
+
+<../02_Ex_Hagg_Alaqtash/02_Ex_Hagg_Alaqtash_visual_output_3.png, id=18, 812.033
+75pt x 192.72pt>
+File: ../02_Ex_Hagg_Alaqtash/02_Ex_Hagg_Alaqtash_visual_output_3.png Graphic fi
+le (type png)
+
+<use ../02_Ex_Hagg_Alaqtash/02_Ex_Hagg_Alaqtash_visual_output_3.png>
+Package pdftex.def Info: ../02_Ex_Hagg_Alaqtash/02_Ex_Hagg_Alaqtash_visual_outp
+ut_3.png used on input line 171.
+(pdftex.def)             Requested size: 400.0pt x 94.93059pt.
+ [3 <../02_Ex_Hagg_Alaqtash/02_Ex_Hagg_Alaqtash_visual_output_1.png (PNG copy)>
+ <../02_Ex_Hagg_Alaqtash/02_Ex_Hagg_Alaqtash_visual_output_2.png (PNG copy)> <.
+./02_Ex_Hagg_Alaqtash/02_Ex_Hagg_Alaqtash_visual_output_3.png (PNG copy)>]
+(./02_Ex_Hagg_Alaqtash documentation.aux) ) 
 Here is how much of TeX's memory you used:
- 4211 strings out of 495059
- 59519 string characters out of 3182030
- 140122 words of memory out of 3000000
- 7314 multiletter control sequences out of 15000+200000
- 14320 words of font info for 37 fonts, out of 3000000 for 9000
+ 4243 strings out of 495059
+ 60616 string characters out of 3182030
+ 143152 words of memory out of 3000000
+ 7337 multiletter control sequences out of 15000+200000
+ 17300 words of font info for 41 fonts, out of 3000000 for 9000
  14 hyphenation exceptions out of 8191
- 47i,10n,47p,268b,211s stack positions out of 5000i,500n,10000p,200000b,50000s
- </home/alex/.texmf-var/fonts/pk/ljfour/jknappen/ec/eccc1440.6
-00pk> </home/alex/.texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1095.600pk> </home
-/alex/.texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1440.600pk> </home/alex/.texmf
--var/fonts/pk/ljfour/jknappen/ec/ecrm2074.600pk> </home/alex/.texmf-var/fonts/p
-k/ljfour/jknappen/ec/eccc1095.600pk></usr/share/texlive/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmsy10.pfb>
-Output written on "02_Ex_Hagg_Alaqtash documentation.pdf" (1 page, 37859 bytes)
-.
+ 47i,10n,47p,268b,274s stack positions out of 5000i,500n,10000p,200000b,50000s
+ </home/alex/.texmf-var/fonts/pk/ljf
+our/jknappen/ec/eccc1200.600pk> </home/alex/.texmf-var/fonts/pk/ljfour/jknappen
+/ec/eccc1440.600pk> </home/alex/.texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1095
+.600pk> </home/alex/.texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1440.600pk> </ho
+me/alex/.texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm2074.600pk> </home/alex/.tex
+mf-var/fonts/pk/ljfour/jknappen/ec/eccc1095.600pk></usr/share/texlive/texmf-dis
+t/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
+Output written on "02_Ex_Hagg_Alaqtash documentation.pdf" (3 pages, 66820 bytes
+).
 PDF statistics:
- 126 PDF objects out of 1000 (max. 8388607)
- 27 compressed objects within 1 object stream
+ 202 PDF objects out of 1000 (max. 8388607)
+ 35 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 16 words of extra memory for PDF output out of 10000 (max. 10000000)
 

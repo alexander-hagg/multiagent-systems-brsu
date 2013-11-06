@@ -13,7 +13,7 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
 
-public class SchedulingVisualizer extends Agent {
+public class SchedulingVisualizerAgent extends Agent {
 
 	/**
 	 * 
@@ -70,6 +70,7 @@ public class SchedulingVisualizer extends Agent {
 	      {
 			private static final long serialVersionUID = -8703203027122857880L;
 
+			@SuppressWarnings("unchecked")
 			public void action()  
 	         {
 	            ACLMessage msg = receive( templateSchedule );

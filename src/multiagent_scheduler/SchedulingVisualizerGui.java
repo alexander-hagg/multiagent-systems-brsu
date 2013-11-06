@@ -2,6 +2,7 @@ package multiagent_scheduler;
 
 import java.awt.*;
 import java.util.*;
+
 import javax.swing.*;
 
 public class SchedulingVisualizerGui extends JFrame{
@@ -19,6 +20,7 @@ public class SchedulingVisualizerGui extends JFrame{
         component = new MyComponent();
         component.setOriginAndSize(schedule, totalTime);
         panel.add(component, BorderLayout.CENTER);
+        
         
         pack();
         super.setVisible(true);
@@ -47,6 +49,7 @@ class MyComponent extends JComponent
     MyComponent()
     {
         repaint();
+		
     }
 
     public void setOriginAndSize(ArrayList<Job> schedule, int totalTime)
@@ -72,7 +75,6 @@ class MyComponent extends JComponent
         int fontBorder = 1;
         Font font = new Font("Verdana", Font.BOLD, 12);
         
-        int colorsCount = 7;
         color.add(Color.yellow);
         color.add(Color.orange);
         color.add(Color.red);

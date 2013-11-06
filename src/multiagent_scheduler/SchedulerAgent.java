@@ -60,6 +60,7 @@ public class SchedulerAgent extends Agent {
         {
 			private static final long serialVersionUID = 8693491577914569273L;
 
+			@SuppressWarnings("unchecked")
 			public void handle( ACLMessage msg ) 
 			{  
 				if (msg == null) 
@@ -97,8 +98,7 @@ public class SchedulerAgent extends Agent {
 		templateSchedule = MessageTemplate.MatchPerformative( ACLMessage.QUERY_REF ); 
 		
 		addBehaviour(new CyclicBehaviour(this)
-	      {
-
+		{
 			private static final long serialVersionUID = 8693491533424444273L;
 
 			public void action()  
@@ -116,11 +116,8 @@ public class SchedulerAgent extends Agent {
 	            }
 	            block();
 	         }
-	      });	
+		});	
 		send ( message );
-		
-		
-		
 	}
 	
 	protected void takeDown() {
