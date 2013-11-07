@@ -1,12 +1,12 @@
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
-
 import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -95,8 +95,9 @@ public class RunJade {
 
 		c = containerList.get("container1");
 		agentName="JobSupplier1";
-		try {					
-			Object[] objtab = new Object[]{new String("/home/alex/Documents/FH/MAS/Semester 3/Multiagent/JADE-all-4.3.0/jade/src/multiagent-systems-brsu/jobs")};//used to give informations to the agent
+		try {	
+		    String filePath = new File("").getAbsolutePath() + "/jobs";		    
+			Object[] objtab = new Object[]{filePath};//used to give informations to the agent
 			AgentController	ag = c.createNewAgent(agentName,multiagent_scheduler.JobSupplierAgent.class.getName(),objtab);
 			agentList.add(ag);
 			System.out.println(agentName + " launched");
