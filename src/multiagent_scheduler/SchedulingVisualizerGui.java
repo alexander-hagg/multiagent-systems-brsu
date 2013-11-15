@@ -42,6 +42,7 @@ class MyComponent extends JComponent
     private int windowHeight = 18;
     private int graphHeight = 15;
     private int graphBorder = 3;
+    private int bottomPadding = 10;
     private ArrayList<Job> schedule;
     private int totalTime;
     private  ArrayList<Color> color = new ArrayList<Color>();;
@@ -76,13 +77,9 @@ class MyComponent extends JComponent
         Font font = new Font("Verdana", Font.BOLD, 12);
         
         color.add(Color.yellow);
-        color.add(Color.orange);
-        color.add(Color.red);
         color.add(Color.green);
-        color.add(Color.cyan);
-        color.add(Color.blue);
-        color.add(Color.gray);
-        
+
+        //draw jobs
         for (Job job : schedule) {
         	y = graphBorder;
             g.setColor(color.get(count));
@@ -95,6 +92,17 @@ class MyComponent extends JComponent
             ++count;
             if (count >= color.size())
                 count = 0;
+        }
+        
+        //draw timeline
+        count = 0;
+        Font timelineFont = new Font("Verdana", Font.PLAIN, 8);
+        g.setFont(timelineFont);
+        g.drawLine(0, windowHeight-bottomPadding, width, windowHeight-bottomPadding);
+        for (int i =  0; i < width; i += width/totalTime) {
+            g.drawString("o", i+count, windowHeight-bottomPadding+graphBorder);
+            g.drawString(Integer.toString(count), i+count, windowHeight);
+            ++count;
         }
 
     }
