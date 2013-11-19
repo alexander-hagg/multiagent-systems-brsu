@@ -95,7 +95,8 @@ public class SchedulerAgent extends Agent {
 
 		addBehaviour( seq );
 
-		templateSchedule = MessageTemplate.MatchPerformative( ACLMessage.QUERY_REF ); 
+		templateSchedule = MessageTemplate.MatchPerformative( ACLMessage.QUERY_REF );
+		
 		
 		addBehaviour(new CyclicBehaviour(this)
 		{
@@ -106,8 +107,11 @@ public class SchedulerAgent extends Agent {
 	            ACLMessage msg = receive( templateSchedule );
 	            if (msg!=null&& msg.getContent().equals("schedule")) { 
 	                reply = msg.createReply();
+	                reply.setConversationId(genCID());
 	                reply.setPerformative( ACLMessage.INFORM );
+
 	                try {
+	                	
 						reply.setContentObject(schedule);
 					} catch (IOException e) {
 						e.printStackTrace();
