@@ -27,6 +27,7 @@ public class SchedulingVisualizerAgent extends Agent {
 	ArrayList<Job> schedule = new ArrayList<Job>();
 	SchedulingVisualizerGui visGui =  new SchedulingVisualizerGui();
 	private boolean guiSetup = false;
+	private int tickTime;
 	
 	protected void setup() {
 		System.out.println("SchedulingVisualizer " + getAID().getName() + " is ready.");
@@ -63,7 +64,7 @@ public class SchedulingVisualizerAgent extends Agent {
 			}
 		}) ;
 		
-		templateSchedule = MessageTemplate.MatchPerformative( ACLMessage.INFORM ); 
+		templateSchedule = MessageTemplate.MatchPerformative( ACLMessage.INFORM );
 		
 	
 		addBehaviour( new CyclicBehaviour(this)
@@ -74,12 +75,11 @@ public class SchedulingVisualizerAgent extends Agent {
 			public void action()  
 	         {
 	            ACLMessage msg = receive( templateSchedule );
-	            if (msg == null) 
-					System.out.println("SchedulerAgentVisualizer: Timeout");
-				else  {
+
+	            if (msg != null && (msg.getConversationId().substring(0,3).compareTo("Sch")==0  )) { 
 					try {
 						schedule = (ArrayList<Job>) msg.getContentObject();
-						print(schedule);
+						// print(schedule);
 						int totalTime = 0;
 						for (Job job : schedule) {
 							totalTime += job.duration;
@@ -101,6 +101,21 @@ public class SchedulingVisualizerAgent extends Agent {
 	         }
 			
 		});
+		
+		templateSchedule = MessageTemplate.MatchPerformative( ACLMessage.INFORM ); 
+		
+		addBehaviour(new CyclicBehaviour(this)
+		{
+			private static final long serialVersionUID = 8693491533114444273L;
+			public void action()  
+	         {
+	            ACLMessage msg = receive( templateSchedule );
+	            if (msg!=null && msg.getContent().equals("tick")) { 
+	                tickTime++;
+	                System.out.println("Tick " + tickTime + " SchedulingVis");
+	            }
+	         }
+		});	
 		
 	}
 	
