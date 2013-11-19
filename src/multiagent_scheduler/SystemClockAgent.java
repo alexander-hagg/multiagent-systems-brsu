@@ -49,6 +49,7 @@ public class SystemClockAgent extends Agent {
 					message.addReceiver( agent.getName() );
 				}
 				send( message );
+				block();
 			}
 		});	
 
