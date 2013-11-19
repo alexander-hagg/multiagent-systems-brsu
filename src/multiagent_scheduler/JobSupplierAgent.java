@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.text.ParseException;
 
 import jade.core.Agent;
 import jade.core.AID;
@@ -20,6 +21,8 @@ public class JobSupplierAgent extends Agent{
 	private ACLMessage msg, reply;
 	protected static int cidCnt = 0;
 	String cidBase;
+	FileReader fileReader;
+	BufferedReader bufferedReader;
 	
 	protected void setup() {
 		System.out.println("JobSupplierAgent "+ getAID().getName()+" is ready.");
@@ -31,6 +34,8 @@ public class JobSupplierAgent extends Agent{
 				joblist = read(filename);
 			} catch (IOException e) {
 				e.printStackTrace();
+			} catch (ParseException e) {
+				e.printStackTrace();
 			}
 			print(joblist);
 		}
@@ -39,7 +44,6 @@ public class JobSupplierAgent extends Agent{
 		
 		addBehaviour(new CyclicBehaviour(this)
 	      {
-
 			private static final long serialVersionUID = 8693491533514569273L;
 
 			public void action()  
@@ -51,8 +55,17 @@ public class JobSupplierAgent extends Agent{
 	                try {
 						reply.setContentObject(joblist);
 					} catch (IOException e) {
+						try {
+							bufferedReader.close();
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
+						try {
+							fileReader.close();
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
 						e.printStackTrace();
-						
 					}
 	                send(reply);
 	            }
@@ -66,17 +79,77 @@ public class JobSupplierAgent extends Agent{
 		System.out.println("JobSupplierAgent "+getAID().getName()+" terminating.");
 	}
 	
-	protected ArrayList<Job> read(String filename) throws IOException {
+	protected ArrayList<Job> read(String filename) throws IOException, ParseException{
 		ArrayList<Job> joblist = new ArrayList<Job>();
-		FileReader fileReader = new FileReader(filename);
-		BufferedReader bufferedReader = new BufferedReader(fileReader);
+		fileReader = new FileReader(filename);
+		bufferedReader = new BufferedReader(fileReader);
 		String line;
 		String[] columnDetail;
+		int lineCounter = 0;
 		while ((line = bufferedReader.readLine()) != null) {
-			columnDetail = line.split(" ");
+			lineCounter++;
+			columnDetail = line.split("; ");
 			Job newJob = new Job();
-			newJob.setName(columnDetail[0]);
-			newJob.setDuration(Integer.parseInt(columnDetail[1]));
+			newJob.setJobNumber(Integer.parseInt(columnDetail[0]));
+			
+			if (Integer.parseInt(columnDetail[1]) > 0) {
+				newJob.setProcessingTime(Integer.parseInt(columnDetail[1]));
+			}
+			else {
+				bufferedReader.close();
+				fileReader.close();
+				throw new ParseException("processing time should be an integer greater than zero", lineCounter);
+			}
+			
+			if (Integer.parseInt(columnDetail[2]) > -1) {
+				newJob.setReleaseTime(Integer.parseInt(columnDetail[2]));
+			}
+			else {
+				bufferedReader.close();
+				fileReader.close();
+				throw new ParseException("release time should be an integer greater than or equal zero", lineCounter);
+			}
+			
+			if (Integer.parseInt(columnDetail[3]) == 0 || Integer.parseInt(columnDetail[3]) >= (newJob.getProcessingTime()+newJob.getReleaseTime() ) ) {
+				newJob.setDueDate(Integer.parseInt(columnDetail[3]));
+			} else {
+				bufferedReader.close();
+				fileReader.close();
+				throw new ParseException("due date should be an integer greater than or equal zero. When greater zero it should be greater than processing time plus release time", lineCounter);
+			}
+			
+			if (Integer.parseInt(columnDetail[4])==0 || Integer.parseInt(columnDetail[4])==1 ) {
+				newJob.setPreemptable(Integer.parseInt(columnDetail[4]));
+			} else {
+				bufferedReader.close();
+				fileReader.close();
+				throw new ParseException("set preemptable should be an integer equalling 0 or 1", lineCounter);
+			}
+			
+			if (Integer.parseInt(columnDetail[5]) > -1) {
+				newJob.setWeight(Integer.parseInt(columnDetail[5]));
+			} else {
+				bufferedReader.close();
+				fileReader.close();
+				throw new ParseException("weight should be an integer greater than or equal zero", lineCounter);
+			}
+			
+			if (Integer.parseInt(columnDetail[6]) > -1) {
+				newJob.setCost(Integer.parseInt(columnDetail[6]));
+			} else {
+				bufferedReader.close();
+				fileReader.close();
+				throw new ParseException("cost should be an integer greater than or equal zero", lineCounter);
+			}
+			
+			if (Integer.parseInt(columnDetail[7]) > -1) {
+				newJob.setProfit(Integer.parseInt(columnDetail[7]));
+			} else {
+				bufferedReader.close();
+				fileReader.close();
+				throw new ParseException("weight should be an integer greater than or equal zero", lineCounter);
+			}
+			
 			joblist.add(newJob);
 		}
 		bufferedReader.close();
@@ -87,7 +160,7 @@ public class JobSupplierAgent extends Agent{
 	protected void print(ArrayList<Job> joblist) {
 		System.out.println("list of jobs:\njob name\t\tduration\n=========================================");
 		for(int i = 0; i < joblist.size(); i++) {
-			System.out.println(joblist.get(i).getName() + "\t\t\t" + joblist.get(i).getDuration() + " hours");
+			System.out.println(joblist.get(i).getJobNumber() + "\t\t\t" + joblist.get(i).getProcessingTime() + " hours");
 		}
 		System.out.println("=========================================");
 	}

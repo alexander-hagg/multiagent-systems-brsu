@@ -82,7 +82,7 @@ public class SchedulingVisualizerAgent extends Agent {
 						// print(schedule);
 						int totalTime = 0;
 						for (Job job : schedule) {
-							totalTime += job.duration;
+							totalTime += job.getProcessingTime();
 						}
 						
 						//DISPLAY GUI
@@ -126,7 +126,7 @@ public class SchedulingVisualizerAgent extends Agent {
 	protected void print(ArrayList<Job> joblist) {
 		System.out.println("job schedule:\njob name\t\tduration\n=========================================");
 		for(int i = 0; i < joblist.size(); i++) {
-			System.out.println(joblist.get(i).getName() + "\t\t\t" + joblist.get(i).getDuration() + " hours");
+			System.out.println(joblist.get(i).getJobNumber() + "\t\t\t" + joblist.get(i).getProcessingTime() + " hours");
 		}
 		System.out.println("=========================================");
 	}
