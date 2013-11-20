@@ -18,19 +18,24 @@ public class ScheduleExecutionAgent extends Agent{
 		
 		templateSchedule = MessageTemplate.MatchPerformative( ACLMessage.INFORM ); 
 		
-		addBehaviour(new CyclicBehaviour(this)
-		{
-			private static final long serialVersionUID = 8693491533114444273L;
-			public void action()  
-	         {
-	            ACLMessage msg = receive( templateSchedule );
-	            if (msg!=null && msg.getContent().equals("tick")) { 
-	                tickTime++;
-	                System.out.println("Tick " + tickTime + " ScheduleExecutionAgent");
-	            }
-	            block();
-	         }
-		});	
+		addBehaviour(new ReactToTick(this));	
+	}
+	
+	private class ReactToTick extends CyclicBehaviour
+	{
+		private static final long serialVersionUID = 8693491533114444273L;
+		
+		private ReactToTick(Agent a) {
+			super(a);
+		}
+		public void action()  
+         {
+            ACLMessage msg = receive( templateSchedule );
+            if (msg!=null && msg.getContent().equals("tick")) { 
+                tickTime++;
+                System.out.println("Tick " + tickTime + " ScheduleExecutionAgent");
+            }
+         }
 	}
 	
 	protected void takeDown() {
