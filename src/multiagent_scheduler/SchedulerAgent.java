@@ -56,7 +56,7 @@ public class SchedulerAgent extends Agent {
 				
 		SequentialBehaviour seq = new SequentialBehaviour();
 
-		seq.addSubBehaviour( new myReceiver(this, 1000, templateJoblist )
+		seq.addSubBehaviour( new MessageReceiver(this, 1000, templateJoblist )
         {
 			private static final long serialVersionUID = 8693491577914569273L;
 
