@@ -35,24 +35,30 @@ public class SystemClockAgent extends Agent {
             e.printStackTrace();
 		}
 
-		addBehaviour(new TickerBehaviour(this, 1000)
-		{
+		addBehaviour(new TickSystemBehaviour(this, 1500));	
 
-			private static final long serialVersionUID = 2319170146627755318L;
+	}
+	
+	private class TickSystemBehaviour extends TickerBehaviour
+	{
 
-			@Override
-			protected void onTick() {
-				message = new ACLMessage(ACLMessage.INFORM);
-				message.setConversationId( genCID() );
-				message.setContent("tick");
-				for ( AMSAgentDescription agent: agents ) {
-					message.addReceiver( agent.getName() );
-				}
-				send( message );
-				block();
+		private static final long serialVersionUID = 2319170146627755318L;
+		
+		private TickSystemBehaviour(Agent a, int tick) {
+			super(a, tick);
+		}
+
+		@Override
+		protected void onTick() {
+			message = new ACLMessage(ACLMessage.INFORM);
+			message.setConversationId( genCID() );
+			message.setContent("tick");
+			for ( AMSAgentDescription agent: agents ) {
+				message.addReceiver( agent.getName() );
 			}
-		});	
-
+			send( message );
+			block();
+		}
 	}
 	
 	protected void takeDown() {
