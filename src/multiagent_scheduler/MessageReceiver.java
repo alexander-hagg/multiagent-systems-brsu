@@ -4,7 +4,7 @@ import jade.core.Agent;
 import jade.core.behaviours.*;
 import jade.lang.acl.*;
 
-public class myReceiver extends SimpleBehaviour
+public class MessageReceiver extends SimpleBehaviour
 {
 	private static final long serialVersionUID = 6726981775786070248L;
 	private MessageTemplate template;
@@ -17,7 +17,7 @@ public class myReceiver extends SimpleBehaviour
   public ACLMessage getMessage() { return msg; }
   
   
-  public myReceiver(Agent a, int millis, MessageTemplate mt) {
+  public MessageReceiver(Agent a, int millis, MessageTemplate mt) {
     super(a);
     timeOut = millis;
     template = mt;
