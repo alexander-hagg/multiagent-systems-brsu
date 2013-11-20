@@ -12,12 +12,10 @@ import jade.domain.FIPAAgentManagement.SearchConstraints;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
+import jade.proto.states.MsgReceiver;
 
-public class SchedulingVisualizerAgent extends Agent {
+public class SchedulingVisualizerAgent extends Agent{
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -6918861190459111898L;
 	protected static int cidCnt = 0;
 	String cidBase;
@@ -27,7 +25,8 @@ public class SchedulingVisualizerAgent extends Agent {
 	ArrayList<Job> schedule = new ArrayList<Job>();
 	SchedulingVisualizerGui visGui =  new SchedulingVisualizerGui();
 	private boolean guiSetup = false;
-	private int tickTime;
+	SystemTime ticker;
+	private Object stateLock1;
 	
 	protected void setup() {
 		System.out.println("SchedulingVisualizer " + getAID().getName() + " is ready.");
@@ -50,7 +49,7 @@ public class SchedulingVisualizerAgent extends Agent {
 		}
 		
 		template = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.INFORM ),
-				MessageTemplate.MatchConversationId( msg.getConversationId() ));
+				   MessageTemplate.MatchConversationId( msg.getConversationId() ));
 
 		addBehaviour( new TickerBehaviour( this, 1000 )
 		{
@@ -62,24 +61,25 @@ public class SchedulingVisualizerAgent extends Agent {
 				}
 				send ( msg );
 			}
-		}) ;
+		});
 		
 		templateSchedule = MessageTemplate.MatchPerformative( ACLMessage.INFORM );
 		
-	
-		addBehaviour( new CyclicBehaviour(this)
-	      {
-			private static final long serialVersionUID = -8703203027122857880L;
-
+		addBehaviour ( new MsgReceiver(this, templateSchedule, -1, null, stateLock1)
+		{
+			private static final long serialVersionUID = 8693491577914569113L;
 			@SuppressWarnings("unchecked")
-			public void action()  
-	         {
-	            ACLMessage msg = receive( templateSchedule );
-
-	            if (msg != null && (msg.getConversationId().substring(0,3).compareTo("Sch")==0  )) { 
+			public void handleMessage( ACLMessage msg )
+			{
+				
+				if (msg == null) {
+					System.out.println("SchedulingVisualizer: Timeout");
+				}
+				else if( msg.getConversationId().substring(0,3).compareTo("Sch")==0  ) {
+					System.out.println(msg.getConversationId().substring(0,3));
 					try {
 						schedule = (ArrayList<Job>) msg.getContentObject();
-						// print(schedule);
+						print(schedule);
 						int totalTime = 0;
 						for (Job job : schedule) {
 							totalTime += job.getProcessingTime();
@@ -96,26 +96,12 @@ public class SchedulingVisualizerAgent extends Agent {
 					} catch (UnreadableException e) {
 						e.printStackTrace();
 					}
-				}
-	            block();
-	         }
-			
+				} 
+			}
 		});
 		
-		templateSchedule = MessageTemplate.MatchPerformative( ACLMessage.INFORM ); 
-		
-		addBehaviour(new CyclicBehaviour(this)
-		{
-			private static final long serialVersionUID = 8693491533114444273L;
-			public void action()  
-	         {
-	            ACLMessage msg = receive( templateSchedule );
-	            if (msg!=null && msg.getContent().equals("tick")) { 
-	                tickTime++;
-	                System.out.println("Tick " + tickTime + " SchedulingVis");
-	            }
-	         }
-		});	
+		ticker = new SystemTime(this);
+		addBehaviour(ticker);
 		
 	}
 	
