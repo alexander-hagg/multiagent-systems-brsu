@@ -30,8 +30,7 @@ public class ParallelSchedulerAgent extends Agent {
 	protected void setup() {
 		System.out.println("SchedulerAgent "+ getAID().getName() + " is ready.");
 		
-		templateJoblist = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.INFORM ),
-	            						MessageTemplate.MatchConversationId( message.getConversationId() ));
+		templateJoblist = MessageTemplate.MatchPerformative( ACLMessage.INFORM );
 				
 		
 		addBehaviour( new MessageReceiver(this, 1000, templateJoblist )
