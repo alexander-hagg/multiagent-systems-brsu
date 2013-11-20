@@ -11,6 +11,8 @@ import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
 import jade.domain.AMSService;
+import jade.domain.DFService;
+import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.*;
 
 public class ParallelSchedulerAgent extends Agent {
@@ -26,6 +28,19 @@ public class ParallelSchedulerAgent extends Agent {
 	
 	protected void setup() {
 		System.out.println("SchedulerAgent "+ getAID().getName() + " is ready.");
+		
+		DFAgentDescription dfd = new DFAgentDescription();
+		dfd.setName(getAID());
+		ServiceDescription sd = new ServiceDescription();
+		sd.setType("scheduling");
+		sd.setName(getLocalName()+"-scheduling");
+		dfd.addServices(sd);
+		try {
+			DFService.register(this, dfd);
+		}
+		catch (FIPAException fe) {
+			fe.printStackTrace();
+		}
 		
 		try {
             SearchConstraints c = new SearchConstraints();
@@ -100,6 +115,12 @@ public class ParallelSchedulerAgent extends Agent {
 	
 	protected void takeDown() {
 		System.out.println("SchedulingVisualizer " + getAID().getName() + " terminating.");
+		try {
+			DFService.deregister(this);
+		}
+			catch (FIPAException fe) {
+			fe.printStackTrace();
+		}
 	}
 	
 	protected String genCID() { 
