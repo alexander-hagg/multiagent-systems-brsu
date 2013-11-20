@@ -10,18 +10,17 @@ public class MessageReceiver extends SimpleBehaviour
 	private MessageTemplate template;
 	private long    timeOut, 
 	                wakeupTime;
-  private boolean finished;
+	private boolean finished;
   
-  private ACLMessage msg;
+	private ACLMessage msg;
   
-  public ACLMessage getMessage() { return msg; }
+	public ACLMessage getMessage() { return msg; }
   
-  
-  public MessageReceiver(Agent a, int millis, MessageTemplate mt) {
-    super(a);
-    timeOut = millis;
-    template = mt;
-  }
+	public MessageReceiver(Agent a, int millis, MessageTemplate mt) {
+		super(a);
+		timeOut = millis;
+		template = mt;
+	}
   
 	public void onStart() {
 		wakeupTime = (timeOut<0 ? Long.MAX_VALUE
