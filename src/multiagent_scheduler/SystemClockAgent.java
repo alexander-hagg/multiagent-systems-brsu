@@ -1,17 +1,11 @@
 package multiagent_scheduler;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-
 import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.AMSService;
 import jade.domain.FIPAAgentManagement.AMSAgentDescription;
 import jade.domain.FIPAAgentManagement.SearchConstraints;
 import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
-import jade.lang.acl.UnreadableException;
 
 public class SystemClockAgent extends Agent {
 
@@ -35,7 +29,7 @@ public class SystemClockAgent extends Agent {
             e.printStackTrace();
 		}
 
-		addBehaviour(new TickSystemBehaviour(this, 1500));	
+		addBehaviour(new TickSystemBehaviour(this, 1000));	
 
 	}
 	
