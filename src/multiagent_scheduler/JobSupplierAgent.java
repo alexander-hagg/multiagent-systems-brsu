@@ -42,38 +42,43 @@ public class JobSupplierAgent extends Agent{
 		
 	    template = MessageTemplate.MatchPerformative( ACLMessage.QUERY_REF ); 
 		
-		addBehaviour(new CyclicBehaviour(this)
-	      {
-			private static final long serialVersionUID = 8693491533514569273L;
-
-			public void action()  
-	         {
-	            ACLMessage msg = receive( template );
-	            if (msg!=null && msg.getContent().equals("joblist")) {
-	                reply = msg.createReply();
-	                reply.setPerformative( ACLMessage.INFORM );
-	                try {
-						reply.setContentObject(joblist);
-					} catch (IOException e) {
-						try {
-							bufferedReader.close();
-						} catch (IOException e1) {
-							e1.printStackTrace();
-						}
-						try {
-							fileReader.close();
-						} catch (IOException e1) {
-							e1.printStackTrace();
-						}
-						e.printStackTrace();
-					}
-	                send(reply);
-	            }
-	            block();
-	         }
-	      });		
+		addBehaviour(new DistributeJobs(this));		
 		
 	}
+	
+	private class DistributeJobs extends CyclicBehaviour
+    {
+		private static final long serialVersionUID = 8693491533514569273L;
+
+		private DistributeJobs(Agent a) {
+			super(a);
+		}
+		public void action()  
+		{
+			ACLMessage msg = receive( template );
+			if (msg!=null && msg.getContent().equals("joblist")) {
+				reply = msg.createReply();
+				reply.setPerformative( ACLMessage.INFORM );
+				try {
+					reply.setContentObject(joblist);
+				} catch (IOException e) {
+					try {
+						bufferedReader.close();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+					try {
+						fileReader.close();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+					e.printStackTrace();
+				}
+		      send(reply);
+		  }
+		  block();
+       }
+    }
 	
 	protected void takeDown() {
 		System.out.println("JobSupplierAgent "+getAID().getName()+" terminating.");
