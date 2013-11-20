@@ -37,7 +37,7 @@ public class JobSupplierAgent extends Agent{
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
-			print(joblist);
+			//print(joblist);
 		}
 		
 	    template = MessageTemplate.MatchPerformative( ACLMessage.QUERY_REF ); 
@@ -56,7 +56,7 @@ public class JobSupplierAgent extends Agent{
 		public void action()  
 		{
 			ACLMessage msg = receive( template );
-			if (msg!=null && msg.getContent().equals("joblist")) {
+			if (msg!=null && msg.getContent().equals("joblist?")) {
 				reply = msg.createReply();
 				reply.setPerformative( ACLMessage.INFORM );
 				try {
