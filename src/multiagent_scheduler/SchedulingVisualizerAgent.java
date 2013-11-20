@@ -76,10 +76,9 @@ public class SchedulingVisualizerAgent extends Agent{
 					System.out.println("SchedulingVisualizer: Timeout");
 				}
 				else if( msg.getConversationId().substring(0,3).compareTo("Sch")==0  ) {
-					System.out.println(msg.getConversationId().substring(0,3));
 					try {
 						schedule = (ArrayList<Job>) msg.getContentObject();
-						print(schedule);
+						//print(schedule);
 						int totalTime = 0;
 						for (Job job : schedule) {
 							totalTime += job.getProcessingTime();
