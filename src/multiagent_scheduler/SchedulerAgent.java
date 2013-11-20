@@ -12,6 +12,7 @@ import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
+import jade.proto.states.MsgReceiver;
 import jade.domain.AMSService;
 import jade.domain.FIPAAgentManagement.*;
 
@@ -55,13 +56,14 @@ public class SchedulerAgent extends Agent {
 	            						MessageTemplate.MatchConversationId( message.getConversationId() ));
 				
 		SequentialBehaviour seq = new SequentialBehaviour();
-
-		seq.addSubBehaviour( new MessageReceiver(this, 1000, templateJoblist )
+		
+		Object test = null;
+		seq.addSubBehaviour( new MsgReceiver(this, templateJoblist, 1000, null, test )
         {
 			private static final long serialVersionUID = 8693491577914569273L;
 
 			@SuppressWarnings("unchecked")
-			public void handle( ACLMessage msg ) 
+			public void handleMessage( ACLMessage msg ) 
 			{  
 				if (msg == null) 
 					System.out.println("SchedulerAgent: Timeout");

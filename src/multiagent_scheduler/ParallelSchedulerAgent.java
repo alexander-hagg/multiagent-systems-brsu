@@ -7,8 +7,6 @@ import java.util.Collections;
 import jade.core.Agent;
 import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
-import jade.core.behaviours.SequentialBehaviour;
-import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
@@ -21,7 +19,6 @@ public class ParallelSchedulerAgent extends Agent {
 	protected static int cidCnt = 0;
 	String cidBase;
 	private ACLMessage jobQuery, reply;
-	private MessageTemplate templateJoblist, templateSchedule;
 	ArrayList<Job> joblist = new ArrayList<Job>();
 	ArrayList<Job> schedule = new ArrayList<Job>();
 	AMSAgentDescription [] agents = null;
@@ -32,7 +29,7 @@ public class ParallelSchedulerAgent extends Agent {
 		
 		try {
             SearchConstraints c = new SearchConstraints();
-            c.setMaxResults (new Long(-1));
+            c.setMaxResults ( new Long(-1) );
             AMSAgentDescription description = new AMSAgentDescription();
 			agents = AMSService.search( this, description, c );
 		}
@@ -44,12 +41,12 @@ public class ParallelSchedulerAgent extends Agent {
 		jobQuery = newMsg( ACLMessage.QUERY_REF );
 		jobQuery.setConversationId(genCID());
 		jobQuery.setContent("joblist?");
-		for (AMSAgentDescription agent: agents) {
+		for ( AMSAgentDescription agent: agents ) {
 			jobQuery.addReceiver( agent.getName() );
 		}
 		
-		addBehaviour(new JobListQuery());
-		addBehaviour(new ScheduleServer());
+		addBehaviour( new JobListQuery() );
+		addBehaviour( new ScheduleServer() );
 		
 		send ( jobQuery );
 	}
@@ -67,11 +64,11 @@ public class ParallelSchedulerAgent extends Agent {
 			if (msg != null) {
 				try {
 					joblist = (ArrayList<Job>) msg.getContentObject();
-					Collections.sort(joblist);
-					for (Job job : joblist) {
+					Collections.sort( joblist );
+					for ( Job job : joblist ) {
 						schedule.add(job);
 					}
-				} catch (UnreadableException e) {
+				} catch ( UnreadableException e ) {
 					e.printStackTrace();
 				}
 			}
@@ -86,7 +83,7 @@ public class ParallelSchedulerAgent extends Agent {
 		public void action()  
         {
            ACLMessage msg = receive( templateSchedule );
-           if (msg!=null&& msg.getContent().equals("schedule")) { 
+           if (msg!=null&& msg.getContent().equals( "schedule" )) { 
                reply = msg.createReply();
                reply.setConversationId(genCID());
                reply.setPerformative( ACLMessage.INFORM );
