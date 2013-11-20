@@ -20,7 +20,7 @@ public class ParallelSchedulerAgent extends Agent {
 	private static final long serialVersionUID = -6918861190459111898L;
 	protected static int cidCnt = 0;
 	String cidBase;
-	private ACLMessage message, reply;
+	private ACLMessage jobQuery, reply;
 	private MessageTemplate templateJoblist, templateSchedule;
 	ArrayList<Job> joblist = new ArrayList<Job>();
 	ArrayList<Job> schedule = new ArrayList<Job>();
@@ -29,58 +29,6 @@ public class ParallelSchedulerAgent extends Agent {
 	
 	protected void setup() {
 		System.out.println("SchedulerAgent "+ getAID().getName() + " is ready.");
-		
-		templateJoblist = MessageTemplate.MatchPerformative( ACLMessage.INFORM );
-				
-		
-		addBehaviour( new MessageReceiver(this, 1000, templateJoblist )
-        {
-			private static final long serialVersionUID = 8693491577914569273L;
-
-			@SuppressWarnings("unchecked")
-			public void handle( ACLMessage msg ) 
-			{  
-				if (msg == null) 
-					System.out.println("SchedulerAgent: Timeout");
-				else 
-					try {
-						joblist = (ArrayList<Job>) msg.getContentObject();
-						Collections.sort(joblist);
-						for (Job job : joblist) {
-							schedule.add(job);
-						}
-					} catch (UnreadableException e) {
-						e.printStackTrace();
-					}
-           }
-        });
-
-		
-		addBehaviour(new CyclicBehaviour(this)
-		{
-			private static final long serialVersionUID = 8693491533424444273L;
-
-			public void action()  
-	         {
-	            ACLMessage msg = receive( templateSchedule );
-	            templateSchedule = MessageTemplate.MatchPerformative( ACLMessage.QUERY_REF );
-	            if (msg!=null&& msg.getContent().equals("schedule")) { 
-	                reply = msg.createReply();
-	                reply.setConversationId(genCID());
-	                reply.setPerformative( ACLMessage.INFORM );
-
-	                try {
-	                	
-						reply.setContentObject(schedule);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-	                send(reply);
-	            }
-	            block();
-	         }
-		});
-		
 		
 		try {
             SearchConstraints c = new SearchConstraints();
@@ -93,14 +41,64 @@ public class ParallelSchedulerAgent extends Agent {
             e.printStackTrace();
 		}
 		
-		message = newMsg( ACLMessage.QUERY_REF );
-		message.setContent("joblist?");
-		
+		jobQuery = newMsg( ACLMessage.QUERY_REF );
+		jobQuery.setConversationId(genCID());
+		jobQuery.setContent("joblist?");
 		for (AMSAgentDescription agent: agents) {
-			message.addReceiver( agent.getName() );
+			jobQuery.addReceiver( agent.getName() );
 		}
 		
-		send ( message );
+		addBehaviour(new JobListQuery());
+		addBehaviour(new ScheduleServer());
+		
+		send ( jobQuery );
+	}
+	
+	
+	private class JobListQuery extends CyclicBehaviour {
+		
+		private static final long serialVersionUID = -3832723334788838104L;
+		private MessageTemplate templateJobList = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.INFORM ),
+																	   MessageTemplate.MatchConversationId(jobQuery.getConversationId()) );
+
+		@SuppressWarnings("unchecked")
+		public void action() {
+			ACLMessage msg = receive( templateJobList );
+			if (msg != null) {
+				try {
+					joblist = (ArrayList<Job>) msg.getContentObject();
+					Collections.sort(joblist);
+					for (Job job : joblist) {
+						schedule.add(job);
+					}
+				} catch (UnreadableException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	private class ScheduleServer extends CyclicBehaviour {
+		
+		private static final long serialVersionUID = -3832722334788838104L;
+		private MessageTemplate templateSchedule = MessageTemplate.MatchPerformative( ACLMessage.QUERY_REF );
+
+		public void action()  
+        {
+           ACLMessage msg = receive( templateSchedule );
+           if (msg!=null&& msg.getContent().equals("schedule")) { 
+               reply = msg.createReply();
+               reply.setConversationId(genCID());
+               reply.setPerformative( ACLMessage.INFORM );
+
+               try {
+					reply.setContentObject(schedule);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+               send(reply);
+           }
+        }
 	}
 	
 	protected void takeDown() {
@@ -115,7 +113,7 @@ public class ParallelSchedulerAgent extends Agent {
 		return cidBase + (cidCnt++); 
 	}
 	
-	protected ACLMessage getMessage() { return message; }
+	protected ACLMessage getMessage() { return jobQuery; }
 	
 	ACLMessage newMsg( int perf, String content, AID dest) {
 		ACLMessage msg = newMsg(perf);
@@ -129,5 +127,5 @@ public class ParallelSchedulerAgent extends Agent {
 		msg.setConversationId( genCID() );
 		return msg;
 	}
-
+	
 }
