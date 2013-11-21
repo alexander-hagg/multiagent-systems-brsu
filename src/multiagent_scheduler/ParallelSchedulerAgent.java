@@ -3,6 +3,7 @@ package multiagent_scheduler;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Vector;
 
 import jade.core.Agent;
 import jade.core.AID;
@@ -24,7 +25,7 @@ public class ParallelSchedulerAgent extends Agent {
 	ArrayList<Job> joblist = new ArrayList<Job>();
 	ArrayList<Job> schedule = new ArrayList<Job>();
 	AMSAgentDescription [] agents = null;
-
+	Vector<AID> subscribers = new Vector<AID>();
 	
 	protected void setup() {
 		System.out.println("SchedulerAgent "+ getAID().getName() + " is ready.");
@@ -62,6 +63,7 @@ public class ParallelSchedulerAgent extends Agent {
 		
 		addBehaviour( new JobListQuery() );
 		addBehaviour( new ScheduleServer() );
+		addBehaviour( new SubscriptionServer() );
 		
 		send ( jobQuery );
 	}
@@ -85,6 +87,27 @@ public class ParallelSchedulerAgent extends Agent {
 					}
 				} catch ( UnreadableException e ) {
 					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	private class SubscriptionServer extends CyclicBehaviour {
+		
+		private static final long serialVersionUID = -3832723334788838104L;
+		private MessageTemplate templateSubscriptionQuery = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.SUBSCRIBE ),
+																	   MessageTemplate.MatchContent("scheduler") );
+
+		public void action() {
+			ACLMessage msg = receive( templateSubscriptionQuery );
+			if (msg != null) {
+				try {
+					if (!subscribers.contains(msg.getSender())) {
+						subscribers.add(msg.getSender());
+						System.out.println("added subscriber " + subscribers.elementAt(0));
+					}
+				} catch (Exception e){
+					System.out.println(e);
 				}
 			}
 		}

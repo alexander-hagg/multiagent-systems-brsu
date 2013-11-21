@@ -49,14 +49,9 @@ public class ScheduleExecutionAgent extends Agent{
 		fe.printStackTrace();
 		}
 		
-		// subscribe to scheduler service
-		subscribeQuery = newMsg( ACLMessage.QUERY_REF );
-		subscribeQuery.setContent("joblist?");
-		for ( AID agent: schedulerAgents ) {
-			subscribeQuery.addReceiver( agent );
-		}
 		addBehaviour( new SubscribeQuery() );
-		send ( subscribeQuery );
+		
+		
 	}
 	
 	protected void takeDown() {
@@ -66,13 +61,22 @@ public class ScheduleExecutionAgent extends Agent{
 	private class SubscribeQuery extends CyclicBehaviour {
 		
 		private static final long serialVersionUID = -3832723334788838104L;
-		private MessageTemplate templateSubscriptionSuccess = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.CONFIRM ),
-																	   MessageTemplate.MatchConversationId(subscribeQuery.getConversationId()) );
-
+		private MessageTemplate templateSubscriptionSuccess;
 		public void action() {
-			ACLMessage msg = receive( templateSubscriptionSuccess );
-			if (msg != null) {
-				subscribed = true;
+			// subscribe to scheduler service
+			if (!subscribed ) {
+				subscribeQuery = newMsg( ACLMessage.SUBSCRIBE );
+				subscribeQuery.setContent("scheduler");
+				for ( AID agent: schedulerAgents ) {
+					subscribeQuery.addReceiver( agent );
+				}
+				templateSubscriptionSuccess = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.CONFIRM ),
+						   MessageTemplate.MatchConversationId(subscribeQuery.getConversationId()) );
+				send ( subscribeQuery );
+				ACLMessage msg = receive( templateSubscriptionSuccess );
+				if (msg != null) {
+					subscribed = true;
+				}
 			}
 		}
 	}
