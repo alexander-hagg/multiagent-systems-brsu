@@ -26,6 +26,7 @@ public class ScheduleExecutionAgent extends Agent{
 	private String cidBase;
 	protected static int cidCnt = 0;
 	boolean subscribed = false;
+	ArrayList<Job> schedule = new ArrayList<Job>();
 
 	protected void setup() {
 		System.out.println("ScheduleExecutionAgent "+ getAID().getName() + " is ready.");
@@ -50,7 +51,7 @@ public class ScheduleExecutionAgent extends Agent{
 		}
 		
 		addBehaviour( new SubscribeQuery() );
-		
+		addBehaviour( new ReceiveSchedule() );
 		
 	}
 	
@@ -81,6 +82,30 @@ public class ScheduleExecutionAgent extends Agent{
 		}
 	}
 	
+	private class ReceiveSchedule extends CyclicBehaviour {
+		
+		private static final long serialVersionUID = -3832727338788838104L;
+		private MessageTemplate templateSubscriptionSuccess;
+		@SuppressWarnings("unchecked")
+		public void action() {
+			
+			for ( AID agent: schedulerAgents ) {
+				templateSubscriptionSuccess = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.PROPAGATE ),
+																   MessageTemplate.MatchSender(agent) );
+				ACLMessage msg = receive( templateSubscriptionSuccess );
+				if (msg != null) {
+					try {
+						schedule = (ArrayList<Job>) msg.getContentObject();
+						print(schedule);
+						
+					} catch (UnreadableException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+	
 	protected String genCID() { 
 		if (cidBase==null) {
 			cidBase = getLocalName() + hashCode() +
@@ -102,4 +127,11 @@ public class ScheduleExecutionAgent extends Agent{
 		return msg;
 	}
 	
+	protected void print(ArrayList<Job> joblist) {
+		System.out.println("job schedule:\njob name\t\tduration\n=========================================");
+		for(int i = 0; i < joblist.size(); i++) {
+			System.out.println(joblist.get(i).getJobNumber() + "\t\t\t" + joblist.get(i).getProcessingTime() + " hours");
+		}
+		System.out.println("=========================================");
+	}
 }

@@ -62,12 +62,33 @@ public class ParallelSchedulerAgent extends Agent {
 		}
 		
 		addBehaviour( new JobListQuery() );
-		addBehaviour( new ScheduleServer() );
 		addBehaviour( new SubscriptionServer() );
+		addBehaviour( new PublishSchedule() );
 		
 		send ( jobQuery );
 	}
 	
+	
+	private class PublishSchedule extends CyclicBehaviour {
+		
+		private static final long serialVersionUID = -3832723334788838102L;
+		public void action() {
+			// subscribe to scheduler service
+			if ( !subscribers.isEmpty() ) {
+				for ( AID agent: subscribers ) {
+					ACLMessage scheduleMessage = newMsg( ACLMessage.PROPAGATE );
+					try {
+						scheduleMessage.setContentObject(schedule);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					scheduleMessage.addReceiver( agent );
+					send( scheduleMessage );
+				}
+			}
+			block();
+		}
+	}
 	
 	private class JobListQuery extends CyclicBehaviour {
 		
@@ -104,36 +125,13 @@ public class ParallelSchedulerAgent extends Agent {
 				try {
 					if (!subscribers.contains(msg.getSender())) {
 						subscribers.add(msg.getSender());
-						System.out.println("added subscriber " + subscribers.elementAt(0));
+						System.out.println("Added subscriber to schedule: " + msg.getSender());
 					}
 				} catch (Exception e){
 					System.out.println(e);
 				}
 			}
 		}
-	}
-	
-	private class ScheduleServer extends CyclicBehaviour {
-		
-		private static final long serialVersionUID = -3832722334788838104L;
-		private MessageTemplate templateSchedule = MessageTemplate.MatchPerformative( ACLMessage.QUERY_REF );
-
-		public void action()  
-        {
-           ACLMessage msg = receive( templateSchedule );
-           if (msg!=null&& msg.getContent().equals( "schedule" )) { 
-               reply = msg.createReply();
-               reply.setConversationId(genCID());
-               reply.setPerformative( ACLMessage.INFORM );
-
-               try {
-					reply.setContentObject(schedule);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-               send(reply);
-           }
-        }
 	}
 	
 	protected void takeDown() {
