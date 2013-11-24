@@ -96,6 +96,7 @@ public class ScheduleExecutionAgent extends Agent{
 				if (msg != null) {
 					try {
 						schedule = (ArrayList<Job>) msg.getContentObject();
+						System.out.println("SCEDULE RECEIVED" + getAID());
 						print(schedule);
 						
 					} catch (UnreadableException e) {
