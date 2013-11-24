@@ -73,20 +73,42 @@ public class ParallelSchedulerAgent extends Agent {
 		
 		private static final long serialVersionUID = -3832723334788838102L;
 		public void action() {
-			// subscribe to scheduler service
-			if ( !subscribers.isEmpty() ) {
-				for ( AID agent: subscribers ) {
-					ACLMessage scheduleMessage = newMsg( ACLMessage.PROPAGATE );
-					try {
-						scheduleMessage.setContentObject(schedule);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					scheduleMessage.addReceiver( agent );
-					send( scheduleMessage );
-				}
-			}
-			block();
+		    int executionAgents = subscribers.size();
+		    int totalNumberOfjobs = schedule.size();
+		    if (totalNumberOfjobs > 0 && executionAgents > 0) {
+		        ArrayList<Job> scheduleCopy = new ArrayList<Job>();
+    		    int totalScheduleTime = 0;
+    	        for (Job index : schedule) {
+    	            totalScheduleTime += index.getProcessingTime();
+    	            scheduleCopy.add(index);
+    	        }
+    	        //int averageLoad = totalScheduleTime/executionAgents;
+    			// subscribe to scheduler service
+    	        //if ( !subscribers.isEmpty() ) {
+    	            System.out.println("AGENTS: " + executionAgents);
+    				for ( AID agent: subscribers ) {
+    				    ArrayList<Job> subSchedule = new ArrayList<Job>();
+    				    //int currentLoad = 0;
+    					ACLMessage scheduleMessage = newMsg( ACLMessage.PROPAGATE );
+    					try {
+    					    for (int i = 0; i < totalNumberOfjobs/executionAgents; i++) {
+    					        subSchedule.add(scheduleCopy.get(0));
+    					        scheduleCopy.remove(0);
+    					        //currentLoad += subSchedule.get(i).getProcessingTime();
+    					        //if (currentLoad >= averageLoad) {
+    					        //    i = totalNumberOfjobs;
+    					        //}
+    					    }
+    						scheduleMessage.setContentObject(subSchedule);
+    					} catch (IOException e) {
+    						e.printStackTrace();
+    					}
+    					scheduleMessage.addReceiver( agent );
+    					send( scheduleMessage );
+    				}
+    			//}
+		    }
+		    block();
 		}
 	}
 	
