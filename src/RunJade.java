@@ -123,7 +123,37 @@ public class RunJade {
 			System.out.println(agentName + " launched");
 		} catch (StaleProxyException e) {
 			e.printStackTrace();
-		}	
+		}
+		
+		agentName="ScheduleExecutor2";
+        try {
+            Object[] objtab = new Object[]{};//used to give informations to the agent
+            AgentController ag = c.createNewAgent(agentName,multiagent_scheduler.ScheduleExecutionAgent.class.getName(),objtab);
+            agentList.add(ag);
+            System.out.println(agentName + " launched");
+        } catch (StaleProxyException e) {
+            e.printStackTrace();
+        }
+        
+        agentName="ScheduleExecutor3";
+        try {
+            Object[] objtab = new Object[]{};//used to give informations to the agent
+            AgentController ag = c.createNewAgent(agentName,multiagent_scheduler.ScheduleExecutionAgent.class.getName(),objtab);
+            agentList.add(ag);
+            System.out.println(agentName + " launched");
+        } catch (StaleProxyException e) {
+            e.printStackTrace();
+        }   
+        
+        agentName="ScheduleExecutor4";
+        try {
+            Object[] objtab = new Object[]{};//used to give informations to the agent
+            AgentController ag = c.createNewAgent(agentName,multiagent_scheduler.ScheduleExecutionAgent.class.getName(),objtab);
+            agentList.add(ag);
+            System.out.println(agentName + " launched");
+        } catch (StaleProxyException e) {
+            e.printStackTrace();
+        }   
 		
 		agentName="SystemClockAgent1";
 		try {
