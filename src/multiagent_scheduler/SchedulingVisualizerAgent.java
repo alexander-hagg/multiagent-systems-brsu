@@ -1,14 +1,19 @@
 package multiagent_scheduler;
 
 import java.util.ArrayList;
+import java.util.Vector;
 
 import jade.core.Agent;
 import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.AMSService;
+import jade.domain.DFService;
+import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.AMSAgentDescription;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.SearchConstraints;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
@@ -21,7 +26,7 @@ public class SchedulingVisualizerAgent extends Agent{
 	String cidBase;
 	private ACLMessage msg;
 	private MessageTemplate template, templateSchedule;
-	AMSAgentDescription [] agents = null;
+	private Vector<AID> executorAgents = new Vector<AID>();
 	ArrayList<Job> schedule = new ArrayList<Job>();
 	SchedulingVisualizerGui visGui =  new SchedulingVisualizerGui();
 	private boolean guiSetup = false;
@@ -30,38 +35,6 @@ public class SchedulingVisualizerAgent extends Agent{
 	
 	protected void setup() {
 		System.out.println("SchedulingVisualizer " + getAID().getName() + " is ready.");
-		try {
-            SearchConstraints c = new SearchConstraints();
-            c.setMaxResults (new Long(-1));
-            AMSAgentDescription description = new AMSAgentDescription();
-			agents = AMSService.search( this, description, c );
-		}
-		catch ( Exception e ) {
-            System.out.println( "Problem searching AMS: " + e );
-            e.printStackTrace();
-		}
-		
-		msg = newMsg( ACLMessage.QUERY_REF );
-		msg.setContent("schedule");
-		
-		for (AMSAgentDescription agent: agents) {
-			msg.addReceiver( agent.getName() );
-		}
-		
-		template = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.INFORM ),
-				   MessageTemplate.MatchConversationId( msg.getConversationId() ));
-
-		addBehaviour( new TickerBehaviour( this, 1000 )
-		{
-			private static final long serialVersionUID = -7184254332416821810L;
-			
-			protected void onTick() {
-				for (AMSAgentDescription agent: agents) {
-					msg.addReceiver( agent.getName() );
-				}
-				send ( msg );
-			}
-		});
 		
 		templateSchedule = MessageTemplate.MatchPerformative( ACLMessage.INFORM );
 		
@@ -100,8 +73,63 @@ public class SchedulingVisualizerAgent extends Agent{
 		});
 		
 		ticker = new SystemTime(this);
-		addBehaviour(ticker);
+		addBehaviour( ticker );
 		
+		addBehaviour( new FindJobExecutors(this, 1000) );
+		addBehaviour( new GetSchedules(this, 1000) );
+		
+	}
+	
+	private class GetSchedules extends TickerBehaviour {
+		private static final long serialVersionUID = -2248363625608297714L;
+
+		public GetSchedules(Agent a, long period) {
+			super(a, period);
+		}
+
+		@Override
+		protected void onTick() {
+			for (AID agent: executorAgents) {
+				msg = newMsg( ACLMessage.QUERY_REF );
+				msg.setContent("q: schedule for visualization");
+				msg.setConversationId( genCID() );
+				msg.addReceiver( agent );
+				System.out.println("Visualizer adding receiver: " + agent);
+			}
+			send ( msg );
+			
+		}
+		
+	}
+	
+	private class FindJobExecutors extends TickerBehaviour {
+		
+		private static final long serialVersionUID = -3832753334788838104L;
+		private FindJobExecutors(Agent a, long period) {
+			super(a, period);
+		}
+
+		@Override
+		protected void onTick() {
+			// find executor services
+			DFAgentDescription agentDescriptionTemplate = new DFAgentDescription();
+			ServiceDescription sd = new ServiceDescription();
+			sd.setType("executing");
+			agentDescriptionTemplate.addServices(sd);
+			try {
+				DFAgentDescription[] result = DFService.search( myAgent,
+																agentDescriptionTemplate);
+				for (int i = 0; i < result.length; ++i) {
+					if (!executorAgents.contains(result[i].getName())) {
+						System.out.println("Found new executor agent: " + result[i].getName());
+						executorAgents.addElement(result[i].getName());
+					}
+				}
+			}
+			catch (FIPAException fe) {
+				fe.printStackTrace();
+			}
+		}
 	}
 	
 	protected void takeDown() {

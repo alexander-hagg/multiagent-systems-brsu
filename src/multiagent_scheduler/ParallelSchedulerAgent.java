@@ -8,7 +8,6 @@ import java.util.Vector;
 import jade.core.Agent;
 import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
-import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
@@ -22,7 +21,7 @@ public class ParallelSchedulerAgent extends Agent {
 	private static final long serialVersionUID = -6918861190459111898L;
 	protected static int cidCnt = 0;
 	String cidBase;
-	private ACLMessage jobQuery, reply;
+	private ACLMessage jobQuery;
 	private boolean joblistReceived = false;
 	ArrayList<Job> joblist = new ArrayList<Job>();
 	ArrayList<ArrayList<Job>> schedule = new ArrayList<ArrayList<Job>>();
@@ -67,7 +66,6 @@ public class ParallelSchedulerAgent extends Agent {
 		addBehaviour( new ReceiveJobListQuery() );
 		addBehaviour( new GetJobList() );
 		addBehaviour( new PublishSchedule() );
-		
 	}
 	
 	private class GetJobList extends CyclicBehaviour {
@@ -78,7 +76,6 @@ public class ParallelSchedulerAgent extends Agent {
 		public void action() {
 			send ( jobQuery );
 		}
-		
 	}
 	
 	private class PublishSchedule extends CyclicBehaviour {
@@ -109,7 +106,7 @@ public class ParallelSchedulerAgent extends Agent {
 		@SuppressWarnings("unchecked")
 		public void action() {
 			ACLMessage msg = receive( templateJobList );
-			if (msg != null) {
+			if (!joblistReceived && msg != null) {
 				try {
 					joblist = (ArrayList<Job>) msg.getContentObject();
 					joblistReceived = true;
