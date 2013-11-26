@@ -77,6 +77,29 @@ public class SchedulingVisualizerAgent extends Agent{
 		
 		addBehaviour( new FindJobExecutors(this, 1000) );
 		addBehaviour( new GetSchedules(this, 1000) );
+		addBehaviour( new ReceiveSchedules() );
+		
+	}
+	
+	private class ReceiveSchedules extends CyclicBehaviour {
+
+		private static final long serialVersionUID = -2246435472350875607L;
+		private MessageTemplate templateJobList = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.INFORM ),
+																	   MessageTemplate.MatchConversationId(jobQuery.getConversationId()) );
+
+		@SuppressWarnings("unchecked")
+		public void action() {
+			ACLMessage msg = receive( templateJobList );
+			if (!joblistReceived && msg != null) {
+				try {
+					joblist = (ArrayList<Job>) msg.getContentObject();
+					joblistReceived = true;
+					schedule = calculateSchedule( joblist );
+				} catch ( UnreadableException e ) {
+					e.printStackTrace();
+				}
+			}
+		}
 		
 	}
 	
@@ -89,15 +112,13 @@ public class SchedulingVisualizerAgent extends Agent{
 
 		@Override
 		protected void onTick() {
-			for (AID agent: executorAgents) {
+			for (int agent = 0; agent < executorAgents.size(); agent++) {
 				msg = newMsg( ACLMessage.QUERY_REF );
 				msg.setContent("q: schedule for visualization");
-				msg.setConversationId( genCID() );
-				msg.addReceiver( agent );
-				System.out.println("Visualizer adding receiver: " + agent);
+				msg.setConversationId( "agent" + agent + genCID() );
+				msg.addReceiver( executorAgents.get(agent) );
+				send ( msg );
 			}
-			send ( msg );
-			
 		}
 		
 	}
