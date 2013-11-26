@@ -135,6 +135,7 @@ public class ScheduleExecutionAgent extends Agent{
 			if (msg != null) {
 				try {
 					msg.setContentObject(schedule);
+					send( msg );
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
