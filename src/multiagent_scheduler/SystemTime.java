@@ -24,7 +24,7 @@ public class SystemTime extends CyclicBehaviour
        msg = agent.receive( templateSchedule );
        if (msg!=null && msg.getContent().equals("tick")) { 
            systemTime++;
-           System.out.println("Tick " + systemTime);
+           //System.out.println("Tick " + systemTime);
        }
     }
 }
