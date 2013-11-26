@@ -8,6 +8,7 @@ import java.util.Vector;
 import jade.core.Agent;
 import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
+import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
@@ -22,8 +23,9 @@ public class ParallelSchedulerAgent extends Agent {
 	protected static int cidCnt = 0;
 	String cidBase;
 	private ACLMessage jobQuery, reply;
+	private boolean joblistReceived = false;
 	ArrayList<Job> joblist = new ArrayList<Job>();
-	ArrayList<Job> schedule = new ArrayList<Job>();
+	ArrayList<ArrayList<Job>> schedule = new ArrayList<ArrayList<Job>>();
 	AMSAgentDescription [] agents = null;
 	Vector<AID> subscribers = new Vector<AID>();
 	
@@ -61,58 +63,44 @@ public class ParallelSchedulerAgent extends Agent {
 			jobQuery.addReceiver( agent.getName() );
 		}
 		
-		addBehaviour( new JobListQuery() );
 		addBehaviour( new SubscriptionServer() );
+		addBehaviour( new ReceiveJobListQuery() );
+		addBehaviour( new GetJobList() );
 		addBehaviour( new PublishSchedule() );
 		
-		send ( jobQuery );
 	}
 	
+	private class GetJobList extends CyclicBehaviour {
+
+		private static final long serialVersionUID = -2934028333565532421L;
+
+		@Override
+		public void action() {
+			send ( jobQuery );
+		}
+		
+	}
 	
 	private class PublishSchedule extends CyclicBehaviour {
 		
-		private static final long serialVersionUID = -3832723334788838102L;
+		private static final long serialVersionUID = -3832723324728838102L;
 		public void action() {
-		    int executionAgents = subscribers.size();
-		    int totalNumberOfjobs = schedule.size();
-		    if (totalNumberOfjobs > 0 && executionAgents > 0) {
-		        ArrayList<Job> scheduleCopy = new ArrayList<Job>();
-    		    int totalScheduleTime = 0;
-    	        for (Job index : schedule) {
-    	            totalScheduleTime += index.getProcessingTime();
-    	            scheduleCopy.add(index);
-    	        }
-    	        //int averageLoad = totalScheduleTime/executionAgents;
-    			// subscribe to scheduler service
-    	        //if ( !subscribers.isEmpty() ) {
-    	            System.out.println("AGENTS: " + executionAgents);
-    				for ( AID agent: subscribers ) {
-    				    ArrayList<Job> subSchedule = new ArrayList<Job>();
-    				    //int currentLoad = 0;
-    					ACLMessage scheduleMessage = newMsg( ACLMessage.PROPAGATE );
-    					try {
-    					    for (int i = 0; i < totalNumberOfjobs/executionAgents; i++) {
-    					        subSchedule.add(scheduleCopy.get(0));
-    					        scheduleCopy.remove(0);
-    					        //currentLoad += subSchedule.get(i).getProcessingTime();
-    					        //if (currentLoad >= averageLoad) {
-    					        //    i = totalNumberOfjobs;
-    					        //}
-    					    }
-    						scheduleMessage.setContentObject(subSchedule);
-    					} catch (IOException e) {
-    						e.printStackTrace();
-    					}
-    					scheduleMessage.addReceiver( agent );
-    					send( scheduleMessage );
-    				}
-    			//}
-		    }
-		    block();
+			if (schedule.size() == subscribers.size()) {
+	    		for ( int agent = 0; agent < subscribers.size(); agent++ ) {
+					ACLMessage scheduleMessage = newMsg( ACLMessage.PROPAGATE );
+					try {
+						scheduleMessage.setContentObject(schedule.get(agent));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					scheduleMessage.addReceiver( subscribers.get(agent) );
+					send( scheduleMessage );
+			    }
+			}
 		}
 	}
 	
-	private class JobListQuery extends CyclicBehaviour {
+	private class ReceiveJobListQuery extends CyclicBehaviour {
 		
 		private static final long serialVersionUID = -3832723334788838104L;
 		private MessageTemplate templateJobList = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.INFORM ),
@@ -124,10 +112,8 @@ public class ParallelSchedulerAgent extends Agent {
 			if (msg != null) {
 				try {
 					joblist = (ArrayList<Job>) msg.getContentObject();
-					Collections.sort( joblist );
-					for ( Job job : joblist ) {
-						schedule.add(job);
-					}
+					joblistReceived = true;
+					schedule = calculateSchedule( joblist );
 				} catch ( UnreadableException e ) {
 					e.printStackTrace();
 				}
@@ -154,6 +140,29 @@ public class ParallelSchedulerAgent extends Agent {
 				}
 			}
 		}
+	}
+	
+	/* Simple scheduling algorithm, near-optimal but non-flexible for n subscribers
+	 * Picks every n-th job, leading to close-to-optimal schedules
+	 * Non-flexible, because we do not know how to react to e.g. interference in 
+	 * job executors (no feedback).
+	 */
+	protected ArrayList<ArrayList<Job>> calculateSchedule(ArrayList<Job> joblist_) {
+		ArrayList<ArrayList<Job>> schedule_ = new ArrayList<ArrayList<Job>>();
+		Collections.sort( joblist_ );
+	    if (joblist.size() > 0 && subscribers.size() > 0) {
+	    	for (int i = 0; i < subscribers.size(); i++) {
+	    		ArrayList<Job> singleMachineSchedule = new ArrayList<Job>();
+	    		// System.out.println("SUBSCHEDULE");
+	    		for (int j = 0; i+j < joblist_.size(); j = j + subscribers.size()) {
+	    			singleMachineSchedule.add(joblist_.get(i+j));
+	    			// System.out.println("adding job: " + joblist_.get(i+j).getJobNumber() + " with processing time: " + joblist_.get(i+j).getProcessingTime());
+	    		}
+	    		schedule_.add(singleMachineSchedule);
+	    	}
+	    }
+	    
+	    return schedule_;
 	}
 	
 	protected void takeDown() {
