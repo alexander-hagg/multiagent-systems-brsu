@@ -1,5 +1,6 @@
 package multiagent_scheduler;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Vector;
@@ -33,6 +34,21 @@ public class ScheduleExecutionAgent extends Agent{
 		ticker = new SystemTime(this);
 		addBehaviour(ticker);
 		
+		// register executor service
+		
+		DFAgentDescription dfd = new DFAgentDescription();
+		dfd.setName(getAID());
+		ServiceDescription sdExecutor = new ServiceDescription();
+		sdExecutor.setType("executing");
+		sdExecutor.setName(getLocalName()+"-executing");
+		dfd.addServices(sdExecutor);
+		try {
+			DFService.register(this, dfd);
+		}
+		catch (FIPAException fe) {
+			fe.printStackTrace();
+		}
+		
 		// find scheduler service
 		DFAgentDescription template = new DFAgentDescription();
 		ServiceDescription sd = new ServiceDescription();
@@ -47,11 +63,12 @@ public class ScheduleExecutionAgent extends Agent{
 			}
 		}
 		catch (FIPAException fe) {
-		fe.printStackTrace();
+			fe.printStackTrace();
 		}
 		
 		addBehaviour( new SubscribeQuery() );
 		addBehaviour( new ReceiveSchedule() );
+		addBehaviour( new ReturnSchedule() );
 		
 	}
 	
@@ -96,9 +113,9 @@ public class ScheduleExecutionAgent extends Agent{
 				if (msg != null) {
 					try {
 						schedule = (ArrayList<Job>) msg.getContentObject();
-						System.out.println("=================\nSCHEDULE RECEIVED" + getAID());
-						print(schedule);
-						System.out.println("\n=================");
+						// System.out.println("=================\nSCHEDULE RECEIVED" + getAID());
+						// print(schedule);
+						// System.out.println("\n=================");
 						
 					} catch (UnreadableException e) {
 						e.printStackTrace();
@@ -107,6 +124,25 @@ public class ScheduleExecutionAgent extends Agent{
 			}
 		}
 	}
+	
+	private class ReturnSchedule extends CyclicBehaviour {
+		
+		private static final long serialVersionUID = -3832727338788838134L;
+		private MessageTemplate templateScheduleRequest = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.INFORM ),
+				   											  				   MessageTemplate.MatchContent("q: schedule for visualization") );
+		public void action() {
+			ACLMessage msg = receive( templateScheduleRequest );
+			if (msg != null) {
+				try {
+					msg.setContentObject(schedule);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	
 	
 	protected String genCID() { 
 		if (cidBase==null) {
