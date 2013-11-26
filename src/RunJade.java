@@ -96,7 +96,7 @@ public class RunJade {
 		c = containerList.get("container1");
 		agentName="JobSupplier1";
 		try {	
-		    String filePath = new File("").getAbsolutePath() + "/jobs";		    
+		    String filePath = new File("").getAbsolutePath() + "/exercise03-input-data-01.csv";		    
 			Object[] objtab = new Object[]{filePath};//used to give informations to the agent
 			AgentController	ag = c.createNewAgent(agentName,multiagent_scheduler.JobSupplierAgent.class.getName(),objtab);
 			agentList.add(ag);
