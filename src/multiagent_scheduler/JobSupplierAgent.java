@@ -93,7 +93,9 @@ public class JobSupplierAgent extends Agent{
 		int lineCounter = 0;
 		while ((line = bufferedReader.readLine()) != null) {
 			lineCounter++;
-			columnDetail = line.split("; ");
+			if (lineCounter == 1)
+			    continue;
+			columnDetail = line.split(";");
 			Job newJob = new Job();
 			newJob.setJobNumber(Integer.parseInt(columnDetail[0]));
 			
