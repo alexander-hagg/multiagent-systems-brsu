@@ -99,9 +99,9 @@ public class ScheduleExecutionAgent extends Agent{
 		MessageTemplate templateScheduleSubscription = MessageTemplate.and( MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET),
 				MessageTemplate.MatchContent("send-schedules"));
 		addBehaviour( new ScheduleResponder(this, templateScheduleSubscription, sm) );
-		
+		addBehaviour( new ScheduleResponse(this, 100) );
 	}
-	/*
+	
     private class ScheduleResponse extends TickerBehaviour {
         public ScheduleResponse(Agent agent, long time) {
             super(agent, time);
@@ -111,12 +111,12 @@ public class ScheduleExecutionAgent extends Agent{
             ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
             msg.setContent(String.valueOf(getTickCount()));
  
-            for (Subscription suscripcion: agent.subscriptions) {
-                suscripcion.notify(msg);
+            for (Subscription subscription: ((ScheduleExecutionAgent)myAgent).subscriptions) {
+            	subscription.notify(msg);
             }
         }
     }
-	*/
+	
 	protected void takeDown() {
 		System.out.println("ScheduleExecutionAgent  " + getAID().getName() + " terminating.");
 	}
