@@ -8,6 +8,7 @@ import java.util.Vector;
 import java.util.HashSet;
 import java.util.Set;
 
+import jade.content.onto.basic.Done;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
@@ -79,7 +80,7 @@ public class ScheduleExecutionAgent extends Agent{
 			fe.printStackTrace();
 		}
 		
-		addBehaviour( new SubscribeQuery() );
+		addBehaviour( new SubscribeQuery(this, 500) );
 		addBehaviour( new ReceiveSchedule() );
 		
 		
@@ -99,18 +100,19 @@ public class ScheduleExecutionAgent extends Agent{
 		MessageTemplate templateScheduleSubscription = MessageTemplate.and( MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET),
 				MessageTemplate.MatchContent("send-schedules"));
 		addBehaviour( new ScheduleResponder(this, templateScheduleSubscription, sm) );
-		addBehaviour( new ScheduleResponse(this, 100) );
+		addBehaviour( new ScheduleResponse(this, 500) );
 	}
 	
     private class ScheduleResponse extends TickerBehaviour {
-        public ScheduleResponse(Agent agent, long time) {
+		private static final long serialVersionUID = 7170301332202656112L;
+		public ScheduleResponse(Agent agent, long time) {
             super(agent, time);
         }
  
         public void onTick() {
             ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-            msg.setContent(String.valueOf(getTickCount()));
- 
+            //msg.setContent(String.valueOf(getTickCount()));
+            msg.setContent(myAgent.getName().substring(16, 17));
             for (Subscription subscription: ((ScheduleExecutionAgent)myAgent).subscriptions) {
             	subscription.notify(msg);
             }
@@ -178,11 +180,15 @@ public class ScheduleExecutionAgent extends Agent{
         }
     }
 	
-	private class SubscribeQuery extends CyclicBehaviour {
+	private class SubscribeQuery extends TickerBehaviour {
 		
+		public SubscribeQuery(Agent a, long period) {
+			super(a, period);
+		}
 		private static final long serialVersionUID = -3832723334788838104L;
 		private MessageTemplate templateSubscriptionSuccess;
-		public void action() {
+		
+		public void onTick() {
 			// subscribe to scheduler service
 			if (!subscribed ) {
 				subscribeQuery = newMsg( ACLMessage.SUBSCRIBE );
@@ -199,6 +205,9 @@ public class ScheduleExecutionAgent extends Agent{
 				}
 			}
 		}
+		 
+		
+		
 	}
 	
 	private class ReceiveSchedule extends CyclicBehaviour {
@@ -224,6 +233,7 @@ public class ScheduleExecutionAgent extends Agent{
 					}
 				}
 			}
+			block();
 		}
 	}
 	/*

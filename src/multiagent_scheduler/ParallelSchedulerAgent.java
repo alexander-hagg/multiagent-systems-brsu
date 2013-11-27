@@ -8,6 +8,8 @@ import java.util.Vector;
 import jade.core.Agent;
 import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
+import jade.core.behaviours.SimpleBehaviour;
+import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
@@ -65,10 +67,10 @@ public class ParallelSchedulerAgent extends Agent {
 		addBehaviour( new SubscriptionServer() );
 		addBehaviour( new ReceiveJobListQuery() );
 		addBehaviour( new GetJobList() );
-		addBehaviour( new PublishSchedule() );
+		addBehaviour( new PublishSchedule(this,500) );
 	}
 	
-	private class GetJobList extends CyclicBehaviour {
+	private class GetJobList extends SimpleBehaviour {
 
 		private static final long serialVersionUID = -2934028333565532421L;
 
@@ -76,12 +78,24 @@ public class ParallelSchedulerAgent extends Agent {
 		public void action() {
 			send ( jobQuery );
 		}
+
+		@Override
+		public boolean done() {
+			if (joblistReceived)
+				return true;
+			return false;
+		}
+		
+		
 	}
 	
-	private class PublishSchedule extends CyclicBehaviour {
+	private class PublishSchedule extends TickerBehaviour {
 		
+		public PublishSchedule(Agent a, long period) {
+			super(a, period);
+		}
 		private static final long serialVersionUID = -3832723324728838102L;
-		public void action() {
+		public void onTick() {
 			if (schedule.size() == subscribers.size()) {
 	    		for ( int agent = 0; agent < subscribers.size(); agent++ ) {
 					ACLMessage scheduleMessage = newMsg( ACLMessage.PROPAGATE );
@@ -94,15 +108,16 @@ public class ParallelSchedulerAgent extends Agent {
 					send( scheduleMessage );
 			    }
 			}
+			block();
 		}
 	}
 	
-	private class ReceiveJobListQuery extends CyclicBehaviour {
+	private class ReceiveJobListQuery extends SimpleBehaviour {
 		
 		private static final long serialVersionUID = -3832723334788838104L;
 		private MessageTemplate templateJobList = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.INFORM ),
 																	   MessageTemplate.MatchConversationId(jobQuery.getConversationId()) );
-
+		
 		@SuppressWarnings("unchecked")
 		public void action() {
 			ACLMessage msg = receive( templateJobList );
@@ -115,6 +130,13 @@ public class ParallelSchedulerAgent extends Agent {
 					e.printStackTrace();
 				}
 			}
+		}
+
+		@Override
+		public boolean done() {
+			if (joblistReceived)
+				return true;
+			return false;
 		}
 	}
 	
@@ -136,6 +158,7 @@ public class ParallelSchedulerAgent extends Agent {
 					System.out.println(e);
 				}
 			}
+			block();
 		}
 	}
 	

@@ -26,5 +26,6 @@ public class SystemTime extends CyclicBehaviour
            systemTime++;
            //System.out.println("Tick " + systemTime);
        }
+       block();
     }
 }
