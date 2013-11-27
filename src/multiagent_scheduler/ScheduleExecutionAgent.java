@@ -80,7 +80,7 @@ public class ScheduleExecutionAgent extends Agent{
 			fe.printStackTrace();
 		}
 		
-		addBehaviour( new SubscribeQuery(this, 500) );
+		addBehaviour( new SubscribeQuery() );
 		addBehaviour( new ReceiveSchedule() );
 		
 		
@@ -100,7 +100,7 @@ public class ScheduleExecutionAgent extends Agent{
 		MessageTemplate templateScheduleSubscription = MessageTemplate.and( MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET),
 				MessageTemplate.MatchContent("send-schedules"));
 		addBehaviour( new ScheduleResponder(this, templateScheduleSubscription, sm) );
-		addBehaviour( new ScheduleResponse(this, 500) );
+		addBehaviour( new ScheduleResponse(this, 100) );
 	}
 	
     private class ScheduleResponse extends TickerBehaviour {
@@ -180,15 +180,20 @@ public class ScheduleExecutionAgent extends Agent{
         }
     }
 	
-	private class SubscribeQuery extends TickerBehaviour {
+	private class SubscribeQuery extends SimpleBehaviour {
 		
-		public SubscribeQuery(Agent a, long period) {
-			super(a, period);
-		}
 		private static final long serialVersionUID = -3832723334788838104L;
 		private MessageTemplate templateSubscriptionSuccess;
 		
-		public void onTick() {
+		@Override
+		public boolean done() {
+			if (subscribed)
+				return true;
+			return false;
+		}
+		
+		@Override
+		public void action() {
 			// subscribe to scheduler service
 			if (!subscribed ) {
 				subscribeQuery = newMsg( ACLMessage.SUBSCRIBE );
@@ -204,6 +209,7 @@ public class ScheduleExecutionAgent extends Agent{
 					subscribed = true;
 				}
 			}
+			block();
 		}
 		 
 		
