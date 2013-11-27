@@ -1,22 +1,33 @@
 package multiagent_scheduler;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Vector;
+import java.util.HashSet;
+import java.util.Set;
 
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
+import jade.core.behaviours.TickerBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAException;
+import jade.domain.FIPANames;
 import jade.domain.FIPAAgentManagement.AMSAgentDescription;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.NotUnderstoodException;
+import jade.domain.FIPAAgentManagement.RefuseException;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
+import jade.proto.SubscriptionResponder;
+import jade.proto.SubscriptionResponder.Subscription;
+import jade.proto.SubscriptionResponder.SubscriptionManager;
 
 public class ScheduleExecutionAgent extends Agent{
 
@@ -28,6 +39,8 @@ public class ScheduleExecutionAgent extends Agent{
 	protected static int cidCnt = 0;
 	boolean subscribed = false;
 	ArrayList<Job> schedule = new ArrayList<Job>();
+	private Set<Subscription> subscriptions = new HashSet<Subscription>();
+	SubscriptionManager sm;
 
 	protected void setup() {
 		System.out.println("ScheduleExecutionAgent "+ getAID().getName() + " is ready.");
@@ -68,13 +81,102 @@ public class ScheduleExecutionAgent extends Agent{
 		
 		addBehaviour( new SubscribeQuery() );
 		addBehaviour( new ReceiveSchedule() );
-		addBehaviour( new ReturnSchedule() );
+		
+		
+		// FIPA SUBPUBSTUFF
+        sm = new SubscriptionManager() {
+        	 
+            public boolean register(Subscription subscription) {
+                subscriptions.add(subscription);
+                return true;
+            }
+ 
+            public boolean deregister(Subscription subscription) {
+            	subscriptions.remove(subscription);
+                return true;
+            }
+        };
+		MessageTemplate templateScheduleSubscription = MessageTemplate.and( MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET),
+				MessageTemplate.MatchContent("send-schedules"));
+		addBehaviour( new ScheduleResponder(this, templateScheduleSubscription, sm) );
 		
 	}
-	
+	/*
+    private class ScheduleResponse extends TickerBehaviour {
+        public ScheduleResponse(Agent agent, long time) {
+            super(agent, time);
+        }
+ 
+        public void onTick() {
+            ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+            msg.setContent(String.valueOf(getTickCount()));
+ 
+            for (Subscription suscripcion: agent.subscriptions) {
+                suscripcion.notify(msg);
+            }
+        }
+    }
+	*/
 	protected void takeDown() {
 		System.out.println("ScheduleExecutionAgent  " + getAID().getName() + " terminating.");
 	}
+	
+    private class ScheduleResponder extends SubscriptionResponder {
+		private static final long serialVersionUID = 5568721132409065755L;
+		private Subscription subscription;
+ 
+        public ScheduleResponder(Agent agent, MessageTemplate mt, SubscriptionManager sm) {
+            super(agent, mt, sm);
+        }
+ 
+        protected ACLMessage handleSubscription(ACLMessage proposal)
+                throws NotUnderstoodException {
+            System.out.printf("%s: SUSCRIBE received from %s.\n",
+                getLocalName(), proposal.getSender().getLocalName());
+            System.out.printf("%s: Proposal contains: %s.\n",
+                getLocalName(), proposal.getContent());
+ 
+            if (checkProposal(proposal.getContent())) {
+ 
+                this.subscription = this.createSubscription(proposal);
+ 
+                try {
+                    this.mySubscriptionManager.register(subscription);
+                } catch (Exception e) {
+                    System.out.println(getLocalName() + ": Error registering the subscriber.");
+                }
+                ACLMessage agree = proposal.createReply();
+                agree.setPerformative(ACLMessage.AGREE);
+                return agree;
+            } else {
+                ACLMessage refuse = proposal.createReply();
+                refuse.setPerformative(ACLMessage.REFUSE);
+                return refuse;
+            }
+        }
+ 
+        private boolean checkProposal(String content) {
+        	if ( content.compareTo( "send-schedules" ) == 0 ) {
+        		return true;
+        	}
+			return false;
+		}
+
+		protected ACLMessage handleCancel(ACLMessage cancelation) {
+            System.out.printf("%s: CANCEL reveiced from %s.\n",
+                getLocalName(), cancelation.getSender().getLocalName());
+ 
+            try {
+                this.mySubscriptionManager.deregister(this.subscription);
+            } catch (Exception e) {
+                System.out.println(getLocalName() + ": Error deregistering subscriber.");
+            }
+ 
+            ACLMessage cancel = cancelation.createReply();
+            cancel.setPerformative(ACLMessage.INFORM);
+            return cancel;
+        }
+    }
 	
 	private class SubscribeQuery extends CyclicBehaviour {
 		
@@ -124,17 +226,18 @@ public class ScheduleExecutionAgent extends Agent{
 			}
 		}
 	}
-	
+	/*
 	private class ReturnSchedule extends CyclicBehaviour {
 		
 		private static final long serialVersionUID = -3832727338788838134L;
-		private MessageTemplate templateScheduleRequest = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.INFORM ),
+		private MessageTemplate templateScheduleRequest = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.REQUEST ),
 				   											  				   MessageTemplate.MatchContent("q: schedule for visualization") );
 		public void action() {
 			ACLMessage msg = receive( templateScheduleRequest );
 			if (msg != null) {
 				try {
 					msg.setContentObject(schedule);
+					msg.setPerformative(ACLMessage.INFORM);
 					send( msg );
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -142,7 +245,7 @@ public class ScheduleExecutionAgent extends Agent{
 			}
 		}
 	}
-	
+	*/
 	
 	
 	protected String genCID() { 
