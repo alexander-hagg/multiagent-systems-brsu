@@ -2,26 +2,18 @@ package multiagent_scheduler;
 
 import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Vector;
 
 import jade.core.Agent;
 import jade.core.AID;
-import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.core.behaviours.WakerBehaviour;
-import jade.domain.AMSService;
 import jade.domain.DFService;
 import jade.domain.FIPAException;
 import jade.domain.FIPANames;
-import jade.domain.FIPAAgentManagement.AMSAgentDescription;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
-import jade.domain.FIPAAgentManagement.SearchConstraints;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
-import jade.lang.acl.UnreadableException;
-import jade.proto.states.MsgReceiver;
 import jade.proto.SubscriptionInitiator;
 
 public class SchedulingVisualizerAgent extends Agent{
@@ -41,9 +33,7 @@ public class SchedulingVisualizerAgent extends Agent{
 		ticker = new SystemTime(this);
 		addBehaviour( ticker );
 		addBehaviour( new FindJobExecutors(this, 1000) );
-		//addBehaviour( new GetSchedules(this, 1000) );
-		//addBehaviour( new ReceiveSchedules() );
-		
+
 		// Wait for system to setup before starting subscription
 		addBehaviour( new WakerBehaviour(this, 2000) {
 			private static final long serialVersionUID = 5104515388242735848L;
@@ -87,47 +77,6 @@ public class SchedulingVisualizerAgent extends Agent{
 	}
 
 /*	
-	private class GetSchedules2 extends TickerBehaviour {
-		private static final long serialVersionUID = -2248363625608297714L;
-
-		public GetSchedules(Agent a, long period) {
-			super(a, period);
-		}
-
-		@Override
-		protected void onTick() {
-			for (AID agent : executorAgents) {
-				ACLMessage msgScheduleRequest = newMsg( ACLMessage.QUERY_REF );
-				msgScheduleRequest.setContent("q: schedule for visualization");
-				msgScheduleRequest.setConversationId( genCID() );
-				msgScheduleRequest.set
-				msgScheduleRequest.addReceiver( agent );
-				send ( msgScheduleRequest );
-			}
-		}
-	}
-	
-	private class ReceiveSchedules extends CyclicBehaviour {
-
-		private static final long serialVersionUID = -2246435472350875607L;
-		private MessageTemplate templateJobList = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.INFORM ),
-																	   MessageTemplate.MatchProtocol());
-
-		@SuppressWarnings("unchecked")
-		public void action() {
-			ArrayList<Job> schedule = new ArrayList<Job>();
-			ACLMessage msgScheduleReply = receive( templateJobList );
-			System.out.println("Received schedule of agent " + msgScheduleReply.getSender());
-			if (msgScheduleReply != null) {
-				try {
-					schedule = (ArrayList<Job>) msgScheduleReply.getContentObject();
-				} catch ( UnreadableException e ) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-	
 	else if( msg.getConversationId().substring(0,3).compareTo("Sch")==0  ) {
 		try {
 			schedule = (ArrayList<Job>) msg.getContentObject();
