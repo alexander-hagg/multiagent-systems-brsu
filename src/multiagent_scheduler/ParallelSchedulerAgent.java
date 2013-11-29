@@ -26,13 +26,14 @@ public class ParallelSchedulerAgent extends Agent {
 	
 	private static final long serialVersionUID = -6918861190459111898L;
 	
+	SystemTime ticker;
 	protected static int cidCnt = 0;
 	String cidBase;
 	private ACLMessage jobQuery;
 	private boolean joblistReceived = false;
 	
 	ArrayList<Job> joblist = new ArrayList<Job>();
-	ArrayList<ArrayList<Job>> schedule = new ArrayList<ArrayList<Job>>();
+	ArrayList<Schedule> nSchedule = new ArrayList<Schedule>();
 	Vector<AID> subscribers = new Vector<AID>();
 	AMSAgentDescription [] agents = null;
 	
@@ -40,7 +41,8 @@ public class ParallelSchedulerAgent extends Agent {
 	protected void setup() 
 	{
 		System.out.println( "SchedulerAgent "+ getAID().getName() + " is ready." );
-		
+		ticker = new SystemTime(this);
+		addBehaviour(ticker);
 		// Register service to DFService
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName( getAID() );
@@ -117,11 +119,11 @@ public class ParallelSchedulerAgent extends Agent {
 		
 		@Override
 		public void onTick() {
-			if ( schedule.size() == subscribers.size() ) {
+			if ( nSchedule.size() == subscribers.size() ) {
 	    		for ( int agent = 0; agent < subscribers.size(); agent++ ) {
 					ACLMessage scheduleMessage = newMsg( ACLMessage.PROPAGATE );
 					try {
-						scheduleMessage.setContentObject( schedule.get(agent) );
+						scheduleMessage.setContentObject( nSchedule.get(agent) );
 					} catch ( IOException e ) {
 						e.printStackTrace();
 					}
@@ -150,7 +152,8 @@ public class ParallelSchedulerAgent extends Agent {
 			if ( !joblistReceived && msg != null ) {
 				try {
 					joblist = ( ArrayList<Job> ) msg.getContentObject();
-					schedule = calculateSchedule( joblist );
+					if ( subscribers.size() > 0 )
+						nSchedule = calculateSchedule( joblist );
 					joblistReceived = true;
 				} catch ( UnreadableException e ) {
 					e.printStackTrace();
@@ -184,7 +187,7 @@ public class ParallelSchedulerAgent extends Agent {
 				try {
 					if ( !subscribers.contains(msg.getSender()) ) {
 						subscribers.add( msg.getSender() );
-						schedule = calculateSchedule( joblist );
+						nSchedule = calculateSchedule( joblist );
 						System.out.println( "Added subscriber to schedule: " + msg.getSender() + " and recalculated schedule" );
 					}
 				} catch ( Exception e ){
@@ -201,21 +204,24 @@ public class ParallelSchedulerAgent extends Agent {
 	 * Non-flexible, because we do not know how to react to e.g. interference in 
 	 * job executors (no feedback).
 	 */
-	protected ArrayList<ArrayList<Job>> calculateSchedule(ArrayList<Job> joblist_) {
+	protected ArrayList<Schedule> calculateSchedule(ArrayList<Job> joblist_) {
 		
-		ArrayList<ArrayList<Job>> schedule_ = new ArrayList<ArrayList<Job>>();
+		ArrayList<Schedule> nSchedule_ = new ArrayList<Schedule>();
 		Collections.sort( joblist_ );
 		
 	    if ( joblist.size() > 0 && subscribers.size() > 0 ) {
 	    	for ( int i = 0; i < subscribers.size(); i++ ) {
-	    		ArrayList<Job> singleMachineSchedule = new ArrayList<Job>();
-	    		for ( int j = 0; i+j < joblist_.size(); j = j + subscribers.size() )
-	    			singleMachineSchedule.add( joblist_.get(i+j) );
+	    		Schedule singleMachineSchedule = new Schedule();
 	    		
-	    		schedule_.add( singleMachineSchedule );
+	    		for ( int j = 0; i+j < joblist_.size(); j += subscribers.size() )
+	    			singleMachineSchedule.schedule.add( joblist_.get(i+j) );
+	    		
+	    		singleMachineSchedule.owner = subscribers.get(i);
+	    		singleMachineSchedule.setScheduleStartTime( ticker.systemTime );	
+	    		nSchedule_.add( singleMachineSchedule );
 	    	}
 	    }
-	    return schedule_;
+	    return nSchedule_;
 	}
 	
 	@Override
