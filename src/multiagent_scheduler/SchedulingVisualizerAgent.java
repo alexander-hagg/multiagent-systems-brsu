@@ -2,6 +2,7 @@ package multiagent_scheduler;
 
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Vector;
 
 import jade.core.Agent;
@@ -14,6 +15,7 @@ import jade.domain.FIPANames;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.UnreadableException;
 import jade.proto.SubscriptionInitiator;
 
 public class SchedulingVisualizerAgent extends Agent{
@@ -21,10 +23,9 @@ public class SchedulingVisualizerAgent extends Agent{
 	private static final long serialVersionUID = -6918861190459111898L;
 	protected static int cidCnt = 0;
 	String cidBase;
-	// private MessageTemplate template, templateSchedule;
 	private Vector<AID> executorAgents = new Vector<AID>();
-	SchedulingVisualizerGui visGui =  new SchedulingVisualizerGui();
-	// private boolean guiSetup = false;
+	HashMap< AID,SchedulingVisualizerGui > nVisGui = new HashMap< AID,SchedulingVisualizerGui >();
+	private boolean guiSetup = false;
 	SystemTime ticker;
 	
 	protected void setup() {
@@ -70,35 +71,25 @@ public class SchedulingVisualizerAgent extends Agent{
 		
 		protected void handleInform(ACLMessage inform) {
 			System.out.println("SVA received subscription INFORM from " + inform.getSender());
-			System.out.println(inform.getContent());
+			Schedule schedule;
+			try {
+				schedule = (Schedule) inform.getContentObject();
+				//DISPLAY GUI
+				if (!guiSetup) {
+					nVisGui.get( inform.getSender() ).showGui(schedule.schedule, schedule.getScheduleEndTime() - schedule.getScheduleStartTime() );
+					guiSetup = true;
+				} else {
+					nVisGui.get( inform.getSender() ).showGui(schedule.schedule, schedule.getScheduleEndTime() - schedule.getScheduleStartTime() );
+					
+				}
+				
+			} catch (UnreadableException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		
 	}
-
-/*	
-	else if( msg.getConversationId().substring(0,3).compareTo("Sch")==0  ) {
-		try {
-			schedule = (ArrayList<Job>) msg.getContentObject();
-			//print(schedule);
-			int totalTime = 0;
-			for (Job job : schedule) {
-				totalTime += job.getProcessingTime();
-			}
-			
-			//DISPLAY GUI
-			if (!guiSetup) {
-				visGui.showGui(schedule, totalTime);
-				guiSetup = true;
-			} else {
-				visGui.refreshGui(schedule, totalTime);
-			}
-			
-		} catch (UnreadableException e) {
-			e.printStackTrace();
-		}
-	
-	*/
 	
 	private class FindJobExecutors extends TickerBehaviour {
 		
@@ -121,6 +112,8 @@ public class SchedulingVisualizerAgent extends Agent{
 					if (!executorAgents.contains(result[i].getName())) {
 						System.out.println("Found new executor agent: " + result[i].getName());
 						executorAgents.addElement(result[i].getName());
+						
+						nVisGui.put( result[i].getName(),new SchedulingVisualizerGui() );
 					}
 				}
 			}
