@@ -1,5 +1,6 @@
 package multiagent_scheduler;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Vector;
 import java.util.HashSet;
@@ -32,7 +33,7 @@ public class ScheduleExecutionAgent extends Agent{
 	private String cidBase;
 	protected static int cidCnt = 0;
 	boolean subscribed = false;
-	ArrayList<Job> schedule = new ArrayList<Job>();
+	Schedule schedule = new Schedule();
 	private Set<Subscription> subscriptions = new HashSet<Subscription>();
 	SubscriptionManager sm;
 
@@ -93,7 +94,7 @@ public class ScheduleExecutionAgent extends Agent{
 		MessageTemplate templateScheduleSubscription = MessageTemplate.and( MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET),
 				MessageTemplate.MatchContent("send-schedules"));
 		addBehaviour( new ScheduleResponder(this, templateScheduleSubscription, sm) );
-		addBehaviour( new ScheduleResponse(this, 100) );
+		addBehaviour( new ScheduleResponse(this, 1000) );
 	}
 	
     private class ScheduleResponse extends TickerBehaviour {
@@ -104,9 +105,12 @@ public class ScheduleExecutionAgent extends Agent{
  
         public void onTick() {
             ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-            //msg.setContent(String.valueOf(getTickCount()));
-            msg.setContent(myAgent.getName().substring(16, 17));
-            for (Subscription subscription: ((ScheduleExecutionAgent)myAgent).subscriptions) {
+            try {
+				msg.setContentObject( schedule );
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+            for ( Subscription subscription: ((ScheduleExecutionAgent)myAgent).subscriptions ) {
             	subscription.notify(msg);
             }
         }
@@ -222,7 +226,7 @@ public class ScheduleExecutionAgent extends Agent{
 				ACLMessage msg = receive( templateSubscriptionSuccess );
 				if (msg != null) {
 					try {
-						schedule = (ArrayList<Job>) msg.getContentObject();
+						schedule = (Schedule) msg.getContentObject();
 						// System.out.println("=================\nSCHEDULE RECEIVED" + getAID());
 						// print(schedule);
 						// System.out.println("\n=================");
