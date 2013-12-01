@@ -24,7 +24,8 @@ public class SchedulingVisualizerAgent extends Agent{
 	protected static int cidCnt = 0;
 	String cidBase;
 	private Vector<AID> executorAgents = new Vector<AID>();
-	HashMap< AID,SchedulingVisualizerGui > nVisGui = new HashMap< AID,SchedulingVisualizerGui >();
+	HashMap< AID,Schedule > schedules = new HashMap< AID,Schedule>();
+	SchedulingVisualizerGui visGui = new SchedulingVisualizerGui();
 	private boolean guiSetup = false;
 	SystemTime ticker;
 	
@@ -71,16 +72,15 @@ public class SchedulingVisualizerAgent extends Agent{
 		
 		protected void handleInform(ACLMessage inform) {
 			System.out.println("SVA received subscription INFORM from " + inform.getSender());
-			Schedule schedule;
 			try {
-				schedule = (Schedule) inform.getContentObject();
-				//DISPLAY GUI
+				Schedule schedule = (Schedule)inform.getContentObject();
+				schedules.put( inform.getSender(), schedule );
+				int totalTime = schedule.getScheduleEndTime() - schedule.getScheduleStartTime();
 				if (!guiSetup) {
-					nVisGui.get( inform.getSender() ).showGui(schedule.schedule, schedule.getScheduleEndTime() - schedule.getScheduleStartTime() );
+					visGui.showGui( schedules, totalTime );
 					guiSetup = true;
 				} else {
-					nVisGui.get( inform.getSender() ).showGui(schedule.schedule, schedule.getScheduleEndTime() - schedule.getScheduleStartTime() );
-					
+					visGui.refreshGui( schedules,totalTime );
 				}
 				
 			} catch (UnreadableException e) {
@@ -112,8 +112,6 @@ public class SchedulingVisualizerAgent extends Agent{
 					if (!executorAgents.contains(result[i].getName())) {
 						System.out.println("Found new executor agent: " + result[i].getName());
 						executorAgents.addElement(result[i].getName());
-						
-						nVisGui.put( result[i].getName(),new SchedulingVisualizerGui() );
 					}
 				}
 			}

@@ -94,7 +94,7 @@ public class ScheduleExecutionAgent extends Agent{
 		MessageTemplate templateScheduleSubscription = MessageTemplate.and( MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET),
 				MessageTemplate.MatchContent("send-schedules"));
 		addBehaviour( new ScheduleResponder(this, templateScheduleSubscription, sm) );
-		addBehaviour( new ScheduleResponse(this, 1000) );
+		addBehaviour( new ScheduleResponse(this, 200) );
 	}
 	
     private class ScheduleResponse extends TickerBehaviour {
