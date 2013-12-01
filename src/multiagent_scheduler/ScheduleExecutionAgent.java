@@ -93,18 +93,30 @@ public class ScheduleExecutionAgent extends Agent{
         };
 		MessageTemplate templateScheduleSubscription = MessageTemplate.and( MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET),
 				MessageTemplate.MatchContent("send-schedules"));
+		
 		addBehaviour( new ScheduleResponder(this, templateScheduleSubscription, sm) );
-		addBehaviour( new ScheduleResponse(this, 200) );
+		addBehaviour( new ScheduleResponse(this, 1000) );
 	}
 	
     private class ScheduleResponse extends TickerBehaviour {
 		private static final long serialVersionUID = 7170301332202656112L;
+		ScheduleExecutionAgent seaAgent;
 		public ScheduleResponse(Agent agent, long time) {
             super(agent, time);
+            seaAgent = (ScheduleExecutionAgent) agent;
         }
  
         public void onTick() {
             ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+            // check for jobs done
+            int count = 0;
+            for ( int jobDueTime: schedule.getJobDueTimes() ) {
+            	if (jobDueTime < seaAgent.ticker.systemTime) {
+            		schedule.jobsDone.set( count, true );
+            	}
+            	count++;
+            }
+            
             try {
 				msg.setContentObject( schedule );
 			} catch (IOException e) {
@@ -130,10 +142,8 @@ public class ScheduleExecutionAgent extends Agent{
  
         protected ACLMessage handleSubscription(ACLMessage proposal)
                 throws NotUnderstoodException {
-            System.out.printf("%s: SUSCRIBE received from %s.\n",
-                getLocalName(), proposal.getSender().getLocalName());
-            System.out.printf("%s: Proposal contains: %s.\n",
-                getLocalName(), proposal.getContent());
+            // System.out.printf("%s: SUSCRIBE received from %s.\n", getLocalName(), proposal.getSender().getLocalName());
+            // System.out.printf("%s: Proposal contains: %s.\n", getLocalName(), proposal.getContent());
  
             if (checkProposal(proposal.getContent())) {
  
@@ -162,8 +172,7 @@ public class ScheduleExecutionAgent extends Agent{
 		}
 
 		protected ACLMessage handleCancel(ACLMessage cancelation) {
-            System.out.printf("%s: CANCEL reveiced from %s.\n",
-                getLocalName(), cancelation.getSender().getLocalName());
+            //System.out.printf("%s: CANCEL reveiced from %s.\n", getLocalName(), cancelation.getSender().getLocalName());
  
             try {
                 this.mySubscriptionManager.deregister(this.subscription);
@@ -239,27 +248,6 @@ public class ScheduleExecutionAgent extends Agent{
 			block();
 		}
 	}
-	/*
-	private class ReturnSchedule extends CyclicBehaviour {
-		
-		private static final long serialVersionUID = -3832727338788838134L;
-		private MessageTemplate templateScheduleRequest = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.REQUEST ),
-				   											  				   MessageTemplate.MatchContent("q: schedule for visualization") );
-		public void action() {
-			ACLMessage msg = receive( templateScheduleRequest );
-			if (msg != null) {
-				try {
-					msg.setContentObject(schedule);
-					msg.setPerformative(ACLMessage.INFORM);
-					send( msg );
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-	*/
-	
 	
 	protected String genCID() { 
 		if (cidBase==null) {

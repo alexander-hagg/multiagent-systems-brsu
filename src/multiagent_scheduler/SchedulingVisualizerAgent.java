@@ -75,12 +75,11 @@ public class SchedulingVisualizerAgent extends Agent{
 			try {
 				Schedule schedule = (Schedule)inform.getContentObject();
 				schedules.put( inform.getSender(), schedule );
-				int totalTime = schedule.getScheduleEndTime() - schedule.getScheduleStartTime();
 				if (!guiSetup) {
-					visGui.showGui( schedules, totalTime );
+					visGui.showGui( schedules, ticker.systemTime );
 					guiSetup = true;
 				} else {
-					visGui.refreshGui( schedules,totalTime );
+					visGui.refreshGui( schedules, ticker.systemTime );
 				}
 				
 			} catch (UnreadableException e) {
@@ -94,6 +93,7 @@ public class SchedulingVisualizerAgent extends Agent{
 	private class FindJobExecutors extends TickerBehaviour {
 		
 		private static final long serialVersionUID = -3832753334788838104L;
+		
 		private FindJobExecutors(Agent a, long period) {
 			super(a, period);
 		}

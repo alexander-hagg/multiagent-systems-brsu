@@ -81,7 +81,7 @@ public class ParallelSchedulerAgent extends Agent {
 		addBehaviour( new SubscriptionServer() );
 		addBehaviour( new ReceiveJobListQuery() );
 		addBehaviour( new GetJobList() );
-		addBehaviour( new PublishSchedule( this,500 ) );
+		addBehaviour( new PublishSchedule( this,1000 ) );
 	}
 	
 	/*
@@ -213,9 +213,10 @@ public class ParallelSchedulerAgent extends Agent {
 	    	for ( int i = 0; i < subscribers.size(); i++ ) {
 	    		Schedule singleMachineSchedule = new Schedule();
 	    		
-	    		for ( int j = 0; i+j < joblist_.size(); j += subscribers.size() )
+	    		for ( int j = 0; i+j < joblist_.size(); j += subscribers.size() ) {
 	    			singleMachineSchedule.schedule.add( joblist_.get(i+j) );
-	    		
+	    		}
+	    			
 	    		singleMachineSchedule.owner = subscribers.get(i);
 	    		singleMachineSchedule.setScheduleStartTime( ticker.systemTime );	
 	    		nSchedule_.add( singleMachineSchedule );

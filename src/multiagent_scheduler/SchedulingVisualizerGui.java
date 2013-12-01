@@ -11,20 +11,22 @@ public class SchedulingVisualizerGui extends JFrame{
     private static final long serialVersionUID = -2270153591712211843L;
     JPanel panel;
     MyComponent component;
+    int systemTime;
     
-    public void showGui( HashMap< AID,Schedule > schedules, int totalTime ) {
+    public void showGui( HashMap< AID,Schedule > schedules, int systemTime ) {
+    	this.systemTime = systemTime;
         panel = new JPanel();
         getContentPane().add(panel, BorderLayout.CENTER);
         component = new MyComponent();
-        component.setOriginAndSize( schedules, totalTime );
+        component.setOriginAndSize( schedules, systemTime );
         panel.add(component, BorderLayout.CENTER);
-        
         pack();
         super.setVisible(true);
     }
     
-    public void refreshGui( HashMap< AID,Schedule > schedules, int totalTime ) {
-    	component.setOriginAndSize( schedules, totalTime );
+    public void refreshGui( HashMap< AID,Schedule > schedules, int systemTime ) {
+    	this.systemTime = systemTime;
+    	component.setOriginAndSize( schedules, systemTime );
     	panel.revalidate();
     }
 }
@@ -32,7 +34,7 @@ public class SchedulingVisualizerGui extends JFrame{
 class MyComponent extends JComponent
 {
     private static final long serialVersionUID = -7469521325933120496L;
-    private int width = 800;
+    private int width = 900;
     private int windowHeight = 18;
     private int graphHeight = 15;
     private int graphBorder = 3;
@@ -40,17 +42,27 @@ class MyComponent extends JComponent
     private HashMap< AID,Schedule > schedules = new HashMap< AID,Schedule>();
     private int totalTime;
     private ArrayList<Color> color = new ArrayList<Color>();
-    private int currentScheduleNr;
+    private int systemTime = 0;
     
     MyComponent()
     {
         repaint();
     }
 
-    public void setOriginAndSize( HashMap< AID,Schedule > schedules, int totalTime )
+    public void setOriginAndSize( HashMap< AID,Schedule > schedules, int systemTime )
     {
     	this.schedules = schedules;
-        this.totalTime = totalTime;
+    	this.systemTime = systemTime;
+        Iterator it = schedules.entrySet().iterator();
+        
+        while (it.hasNext()) {
+        	Map.Entry pairs = (Map.Entry)it.next();
+        	Schedule currentSchedule = (Schedule) pairs.getValue();
+        	int totalTimeCurrent = currentSchedule.getScheduleEndTime() - currentSchedule.getScheduleStartTime();
+        	if (totalTimeCurrent > this.totalTime)
+        		this.totalTime = totalTimeCurrent;
+        }
+        
         windowHeight = 250;
         repaint();
     }
@@ -71,30 +83,32 @@ class MyComponent extends JComponent
         int stepwidth = 20;
         Font font = new Font("Verdana", Font.BOLD, 12);
         
-        color.add(Color.blue);
-        color.add(Color.cyan);
+        color.add(new Color(185, 211, 238));
+        color.add(new Color(159, 182, 205));
         //draw jobs
         Iterator it = schedules.entrySet().iterator();
         int currentScheduleNr = 0;
         
         while (it.hasNext()) {
-            // Map.Entry pairs = (Map.Entry)it.next();
-            // System.out.println(pairs.getKey() + " = " + pairs.getValue());
-            // it.remove(); // avoids a ConcurrentModificationException
-        	
+
         	Map.Entry pairs = (Map.Entry)it.next();
         	Schedule currentSchedule = (Schedule) pairs.getValue();
-  	
+        	int currentJobNr = 0;
+        	
         	for (Job job : currentSchedule.schedule ) {
             	y = graphBorder + currentScheduleNr*50;
                 g.setColor(color.get(count));
                 jobTime = (width * job.getProcessingTime()) / totalTime;
+                if( currentSchedule.jobsDone.get(currentJobNr).booleanValue() ) {
+                	g.setColor( Color.green);
+                }
                 g.fillRect(x, y, jobTime, graphHeight);
                 g.setColor(Color.black);
                 g.setFont(font);
                 g.drawString(Integer.toString(job.getJobNumber()), x + fontBorder, y + graphHeight - graphBorder);
                 x += jobTime;
                 ++count;
+                currentJobNr++;
                 if (count >= color.size())
                     count = 0;
             }
@@ -108,14 +122,18 @@ class MyComponent extends JComponent
         count = 0;
         Font timelineFont = new Font("Verdana", Font.PLAIN, 8);
         g.setFont(timelineFont);
-        g.drawLine(0, windowHeight-bottomPadding, width, windowHeight-bottomPadding);
-        for (int i =  0; i < width; i += width/totalTime) {
+        g.drawLine( 0, windowHeight-bottomPadding, width, windowHeight-bottomPadding );
+        for ( int i =  0; i < width; i += width/totalTime ) {
         	if ( i%stepwidth==0 ) {
         		g.drawString("o", i+count, windowHeight-bottomPadding+graphBorder);
                 g.drawString(Integer.toString(count), i+count, windowHeight);
         	}
             ++count;
         }
+        
+        // draw time indicator
+        // System.out.println("systemTime " + systemTime + " totalTime " + totalTime);
+        g.drawLine( this.systemTime, 0, this.systemTime, windowHeight );
 
     }
 }
