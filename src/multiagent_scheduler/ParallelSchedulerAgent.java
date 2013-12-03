@@ -35,7 +35,7 @@ public class ParallelSchedulerAgent extends Agent {
 	ArrayList<Job> joblist = new ArrayList<Job>();
 	ArrayList<Schedule> nSchedule = new ArrayList<Schedule>();
 	Vector<AID> subscribers = new Vector<AID>();
-	AMSAgentDescription [] agents = null;
+	private Vector<AID> jobSuppliers = new Vector<AID>();
 	
 	@Override
 	protected void setup() 
@@ -43,6 +43,7 @@ public class ParallelSchedulerAgent extends Agent {
 		System.out.println( "SchedulerAgent "+ getAID().getName() + " is ready." );
 		ticker = new SystemTime(this);
 		addBehaviour(ticker);
+		
 		// Register service to DFService
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName( getAID() );
@@ -57,31 +58,37 @@ public class ParallelSchedulerAgent extends Agent {
 			fe.printStackTrace();
 		}
 		
-		// Query agents from AMS
+		// find jobsupplier service
+		DFAgentDescription template = new DFAgentDescription();
+		ServiceDescription sdJobSupplier = new ServiceDescription();
+		sdJobSupplier.setType("jobsupplying");
+		template.addServices(sdJobSupplier);
 		try {
-            SearchConstraints c = new SearchConstraints();
-            c.setMaxResults ( new Long(-1) );
-            AMSAgentDescription description = new AMSAgentDescription();
-			agents = AMSService.search( this, description, c );
+			DFAgentDescription[] result = DFService.search( this,
+															template);
+			jobSuppliers.clear();
+			for (int i = 0; i < result.length; ++i) {
+				jobSuppliers.addElement(result[i].getName());
+			}
 		}
-		catch ( Exception e ) {
-            System.out.println( "Problem searching AMS: " + e );
-            e.printStackTrace();
+		catch (FIPAException fe) {
+			fe.printStackTrace();
 		}
+		
 		
 		// Construct query for joblist
 		jobQuery = newMsg( ACLMessage.QUERY_REF );
 		jobQuery.setConversationId(genCID());
 		jobQuery.setContent("joblist?");
-		for ( AMSAgentDescription agent: agents ) {
-			jobQuery.addReceiver( agent.getName() );
+		for ( AID agent: jobSuppliers ) {
+			jobQuery.addReceiver( agent );
 		}
 		
 		// Add behaviours
 		addBehaviour( new SubscriptionServer() );
 		addBehaviour( new ReceiveJobListQuery() );
 		addBehaviour( new GetJobList() );
-		addBehaviour( new PublishSchedule( this,1000 ) );
+		addBehaviour( new PublishSchedule( this,2000 ) );
 	}
 	
 	/*
@@ -105,10 +112,7 @@ public class ParallelSchedulerAgent extends Agent {
 		}	
 	}
 	
-	/*
-	 * Behaviour: 	publishes schedule to all subscribers
-	 *
-	 */
+	// TODO implement FIPA ContractNet protocol to handle this!
 	private class PublishSchedule extends TickerBehaviour {
 		
 		private static final long serialVersionUID = -3832723324728838102L;
@@ -189,6 +193,10 @@ public class ParallelSchedulerAgent extends Agent {
 						subscribers.add( msg.getSender() );
 						nSchedule = calculateSchedule( joblist );
 						System.out.println( "Added subscriber to schedule: " + msg.getSender() + " and recalculated schedule" );
+						//TODO send confirmation to subscriber
+						ACLMessage reply = msg.createReply();
+						reply.setPerformative( ACLMessage.CONFIRM );
+						send( reply );
 					}
 				} catch ( Exception e ){
 					System.out.println( e );
@@ -214,6 +222,7 @@ public class ParallelSchedulerAgent extends Agent {
 	    		Schedule singleMachineSchedule = new Schedule();
 	    		
 	    		for ( int j = 0; i+j < joblist_.size(); j += subscribers.size() ) {
+	    			// add a setter to the schedule in Schedule class
 	    			singleMachineSchedule.schedule.add( joblist_.get(i+j) );
 	    		}
 	    			

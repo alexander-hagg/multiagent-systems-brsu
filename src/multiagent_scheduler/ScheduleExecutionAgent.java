@@ -33,6 +33,7 @@ public class ScheduleExecutionAgent extends Agent{
 	private String cidBase;
 	protected static int cidCnt = 0;
 	boolean subscribed = false;
+	boolean waitingForSubscription = false;
 	Schedule schedule = new Schedule();
 	private Set<Subscription> subscriptions = new HashSet<Subscription>();
 	SubscriptionManager sm;
@@ -43,7 +44,6 @@ public class ScheduleExecutionAgent extends Agent{
 		addBehaviour(ticker);
 		
 		// register executor service
-		
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(getAID());
 		ServiceDescription sdExecutor = new ServiceDescription();
@@ -95,7 +95,7 @@ public class ScheduleExecutionAgent extends Agent{
 				MessageTemplate.MatchContent("send-schedules"));
 		
 		addBehaviour( new ScheduleResponder(this, templateScheduleSubscription, sm) );
-		addBehaviour( new ScheduleResponse(this, 1000) );
+		addBehaviour( new ScheduleResponse(this, 200) );
 	}
 	
     private class ScheduleResponse extends TickerBehaviour {
@@ -108,7 +108,8 @@ public class ScheduleExecutionAgent extends Agent{
  
         public void onTick() {
             ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-            // check for jobs done
+            // TODO do not do this here! check for jobs done
+            
             int count = 0;
             for ( int jobDueTime: schedule.getJobDueTimes() ) {
             	if (jobDueTime < seaAgent.ticker.systemTime) {
@@ -201,7 +202,7 @@ public class ScheduleExecutionAgent extends Agent{
 		@Override
 		public void action() {
 			// subscribe to scheduler service
-			if (!subscribed ) {
+			if (!waitingForSubscription && !subscribed) {
 				subscribeQuery = newMsg( ACLMessage.SUBSCRIBE );
 				subscribeQuery.setContent("scheduler");
 				for ( AID agent: schedulerAgents ) {
@@ -210,11 +211,13 @@ public class ScheduleExecutionAgent extends Agent{
 				templateSubscriptionSuccess = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.CONFIRM ),
 						   MessageTemplate.MatchConversationId(subscribeQuery.getConversationId()) );
 				send ( subscribeQuery );
+				waitingForSubscription = true;
+			} else if (!subscribed) {
 				ACLMessage msg = receive( templateSubscriptionSuccess );
 				if (msg != null) {
 					subscribed = true;
 				}
-			}
+			}			
 			block();
 		}
 		 

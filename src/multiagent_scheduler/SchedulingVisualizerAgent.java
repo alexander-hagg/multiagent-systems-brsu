@@ -34,8 +34,8 @@ public class SchedulingVisualizerAgent extends Agent{
 		
 		ticker = new SystemTime(this);
 		addBehaviour( ticker );
-		addBehaviour( new FindJobExecutors(this, 1000) );
-
+		addBehaviour( new FindJobExecutors(this, 2000) );
+		
 		// Wait for system to setup before starting subscription
 		addBehaviour( new WakerBehaviour(this, 2000) {
 			private static final long serialVersionUID = 5104515388242735848L;
@@ -52,6 +52,7 @@ public class SchedulingVisualizerAgent extends Agent{
 		  		msgSubscribeScheduleExecutors.setContent("send-schedules");
 				
 				myAgent.addBehaviour( new SchedulingVisualizerAgent.ScheduleSubscription(myAgent, msgSubscribeScheduleExecutors) );
+				myAgent.addBehaviour( new RepaintGUI(myAgent, 1000) );
 			}
 		});
   		
@@ -67,7 +68,7 @@ public class SchedulingVisualizerAgent extends Agent{
 		}
 		
 		protected void handleAgree(ACLMessage agree) {
-			System.out.println("SVA received subscription AGREE from " + agree.getSender());
+			//System.out.println("SVA received subscription AGREE from " + agree.getSender());
 		}
 		
 		protected void handleInform(ACLMessage inform) {
@@ -75,18 +76,11 @@ public class SchedulingVisualizerAgent extends Agent{
 			try {
 				Schedule schedule = (Schedule)inform.getContentObject();
 				schedules.put( inform.getSender(), schedule );
-				if (!guiSetup) {
-					visGui.showGui( schedules, ticker.systemTime );
-					guiSetup = true;
-				} else {
-					visGui.refreshGui( schedules, ticker.systemTime );
-				}
 				
 			} catch (UnreadableException e) {
 				e.printStackTrace();
 			}
 		}
-		
 		
 	}
 	
@@ -118,6 +112,26 @@ public class SchedulingVisualizerAgent extends Agent{
 			catch (FIPAException fe) {
 				fe.printStackTrace();
 			}
+		}
+	}
+	
+private class RepaintGUI extends TickerBehaviour {
+		
+		private static final long serialVersionUID = -3832753334788838784L;
+		
+		private RepaintGUI(Agent a, long period) {
+			super(a, period);
+		}
+
+		@Override
+		protected void onTick() {
+			if (!guiSetup) {
+				visGui.showGui( schedules, ticker.systemTime );
+				guiSetup = true;
+			} else {
+				visGui.refreshGui( schedules, ticker.systemTime );
+			}
+			block();
 		}
 	}
 	

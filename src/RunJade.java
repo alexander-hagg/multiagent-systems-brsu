@@ -124,7 +124,7 @@ public class RunJade {
 		} catch (StaleProxyException e) {
 			e.printStackTrace();
 		}
-		
+		/**/
 		agentName="ScheduleExecutor2";
         try {
             Object[] objtab = new Object[]{};//used to give informations to the agent
@@ -154,7 +154,7 @@ public class RunJade {
         } catch (StaleProxyException e) {
             e.printStackTrace();
         }   
-        /**/
+        
 		agentName="SystemClockAgent1";
 		try {
 			Object[] objtab = new Object[]{};//used to give informations to the agent

@@ -16,14 +16,21 @@ public class SystemTime extends CyclicBehaviour
 		super(a);
 		agent = a;
 		systemTime = 0;
-		templateSchedule = MessageTemplate.MatchPerformative( ACLMessage.INFORM ); 
+		templateSchedule = MessageTemplate.and( MessageTemplate.MatchPerformative( ACLMessage.INFORM ), 
+												MessageTemplate.MatchConversationId( "SYSTEMTIME" ) );
+												
 	}
  
 	public void action()  
     {
        msg = agent.receive( templateSchedule );
-       if (msg!=null && msg.getContent().equals("tick")) { 
-           systemTime++;
+       if (msg!=null) { 
+    	   try {
+    		   systemTime = (Integer) msg.getContentObject();
+    	   } catch (UnreadableException e) {
+    		   // TODO Auto-generated catch block
+    		   e.printStackTrace();
+    	   }
        }
        block();
     }

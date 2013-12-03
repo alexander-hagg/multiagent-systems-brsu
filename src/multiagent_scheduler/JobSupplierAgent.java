@@ -9,6 +9,10 @@ import java.text.ParseException;
 import jade.core.Agent;
 import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
+import jade.domain.DFService;
+import jade.domain.FIPAException;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.ACLMessage;
 
@@ -37,7 +41,20 @@ public class JobSupplierAgent extends Agent{
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
-			//print(joblist);
+		}
+		
+		// Register service to DFService
+		DFAgentDescription dfd = new DFAgentDescription();
+		dfd.setName( getAID() );
+		ServiceDescription sd = new ServiceDescription();
+		sd.setType( "jobsupplying" );
+		sd.setName( getLocalName() + "-jobsupplying" );
+		dfd.addServices( sd );
+		try {
+			DFService.register( this, dfd );
+		}
+		catch ( FIPAException fe ) {
+			fe.printStackTrace();
 		}
 		
 	    template = MessageTemplate.MatchPerformative( ACLMessage.QUERY_REF ); 

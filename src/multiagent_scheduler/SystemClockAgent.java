@@ -1,5 +1,7 @@
 package multiagent_scheduler;
 
+import java.io.IOException;
+
 import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.AMSService;
@@ -14,6 +16,7 @@ public class SystemClockAgent extends Agent {
 	private ACLMessage message;
 	protected static int cidCnt = 0;
 	String cidBase;
+	int systemTickTime = 0;
 
 	protected void setup() {
 		System.out.println("SystemClockAgent "+ getAID().getName() + " is ready.");
@@ -44,9 +47,14 @@ public class SystemClockAgent extends Agent {
 
 		@Override
 		protected void onTick() {
+			systemTickTime++;
 			message = new ACLMessage(ACLMessage.INFORM);
-			message.setConversationId( genCID() );
-			message.setContent("tick");
+			message.setConversationId( "SYSTEMTIME" );
+			try {
+				message.setContentObject(systemTickTime);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			for ( AMSAgentDescription agent: agents ) {
 				message.addReceiver( agent.getName() );
 			}

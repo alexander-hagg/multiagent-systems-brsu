@@ -82,6 +82,7 @@ class MyComponent extends JComponent
         int fontBorder = 1;
         int stepwidth = 20;
         Font font = new Font("Verdana", Font.BOLD, 12);
+        System.out.println("REPAINTING");
         
         color.add(new Color(185, 211, 238));
         color.add(new Color(159, 182, 205));
@@ -118,22 +119,24 @@ class MyComponent extends JComponent
      
         
         
-        //draw timeline
-        count = 0;
-        Font timelineFont = new Font("Verdana", Font.PLAIN, 8);
-        g.setFont(timelineFont);
-        g.drawLine( 0, windowHeight-bottomPadding, width, windowHeight-bottomPadding );
-        for ( int i =  0; i < width; i += width/totalTime ) {
-        	if ( i%stepwidth==0 ) {
-        		g.drawString("o", i+count, windowHeight-bottomPadding+graphBorder);
-                g.drawString(Integer.toString(count), i+count, windowHeight);
-        	}
-            ++count;
+        //draw timeline (as soon as 'a' schedule is received)
+        if ( totalTime != 0) {
+        	count = 0;
+            Font timelineFont = new Font("Verdana", Font.PLAIN, 8);
+            g.setFont(timelineFont);
+            g.drawLine( 0, windowHeight-bottomPadding, width, windowHeight-bottomPadding );
+            for ( int i =  0; i < width; i += width/totalTime ) {
+            	if ( i%stepwidth==0 ) {
+            		g.drawString("o", i+count, windowHeight-bottomPadding+graphBorder);
+                    g.drawString(Integer.toString(count), i+count, windowHeight);
+            	}
+                ++count;
+            }
+            // draw time indicator
+            // System.out.println("systemTime " + systemTime + " totalTime " + totalTime);
+            g.drawLine( this.systemTime, 0, this.systemTime, windowHeight );
         }
         
-        // draw time indicator
-        // System.out.println("systemTime " + systemTime + " totalTime " + totalTime);
-        g.drawLine( this.systemTime, 0, this.systemTime, windowHeight );
 
     }
 }

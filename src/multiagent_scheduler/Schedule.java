@@ -32,6 +32,8 @@ public class Schedule implements Serializable {
 		jobDueTimes.clear();
 		jobsDone.clear();
 		int timePointer = this.scheduleStartTime;
+		
+		//TODO add a buffer?
 		for ( Job job : schedule ) {
 			jobStartTimes.add( timePointer );
 			timePointer +=  job.getProcessingTime();
