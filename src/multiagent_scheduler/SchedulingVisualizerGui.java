@@ -132,8 +132,7 @@ class MyComponent extends JComponent
                 ++count;
             }
             // draw time indicator
-            // System.out.println("systemTime " + systemTime + " totalTime " + totalTime);
-            g.drawLine( (width/totalTime)*this.systemTime, 0, (width/totalTime)*this.systemTime, windowHeight );
+            g.drawLine( ((width*this.systemTime)/totalTime) - 2*width/totalTime, 0, ((width*this.systemTime)/totalTime) - 2*width/totalTime, windowHeight );
         }
         
 
