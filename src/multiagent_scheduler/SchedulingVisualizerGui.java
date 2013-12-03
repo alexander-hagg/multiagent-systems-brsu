@@ -82,7 +82,6 @@ class MyComponent extends JComponent
         int fontBorder = 1;
         int stepwidth = 20;
         Font font = new Font("Verdana", Font.BOLD, 12);
-        System.out.println("REPAINTING");
         
         color.add(new Color(185, 211, 238));
         color.add(new Color(159, 182, 205));
@@ -96,7 +95,7 @@ class MyComponent extends JComponent
         	Schedule currentSchedule = (Schedule) pairs.getValue();
         	int currentJobNr = 0;
         	
-        	for (Job job : currentSchedule.schedule ) {
+        	for (Job job : currentSchedule.getSchedule() ) {
             	y = graphBorder + currentScheduleNr*50;
                 g.setColor(color.get(count));
                 jobTime = (width * job.getProcessingTime()) / totalTime;
@@ -134,7 +133,7 @@ class MyComponent extends JComponent
             }
             // draw time indicator
             // System.out.println("systemTime " + systemTime + " totalTime " + totalTime);
-            g.drawLine( this.systemTime, 0, this.systemTime, windowHeight );
+            g.drawLine( (width/totalTime)*this.systemTime, 0, (width/totalTime)*this.systemTime, windowHeight );
         }
         
 

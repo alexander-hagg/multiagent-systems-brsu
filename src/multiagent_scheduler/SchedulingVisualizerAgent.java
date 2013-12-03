@@ -72,7 +72,7 @@ public class SchedulingVisualizerAgent extends Agent{
 		}
 		
 		protected void handleInform(ACLMessage inform) {
-			System.out.println("SVA received subscription INFORM from " + inform.getSender());
+			// System.out.println("SVA received subscription INFORM from " + inform.getSender());
 			try {
 				Schedule schedule = (Schedule)inform.getContentObject();
 				schedules.put( inform.getSender(), schedule );
