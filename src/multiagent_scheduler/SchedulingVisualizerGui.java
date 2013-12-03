@@ -54,8 +54,9 @@ class MyComponent extends JComponent
     	this.schedules = schedules;
     	this.systemTime = systemTime;
         Iterator it = schedules.entrySet().iterator();
-        
+        int count = 0;
         while (it.hasNext()) {
+        	count++;
         	Map.Entry pairs = (Map.Entry)it.next();
         	Schedule currentSchedule = (Schedule) pairs.getValue();
         	int totalTimeCurrent = currentSchedule.getScheduleEndTime() - currentSchedule.getScheduleStartTime();
@@ -63,7 +64,7 @@ class MyComponent extends JComponent
         		this.totalTime = totalTimeCurrent;
         }
         
-        windowHeight = 250;
+        windowHeight = 50*count;
         repaint();
     }
 
