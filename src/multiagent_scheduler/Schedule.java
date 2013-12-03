@@ -9,8 +9,9 @@ public class Schedule implements Serializable {
 
 	private static final long serialVersionUID = 4630566579557849268L;
 	public AID owner;
-	public ArrayList<Job> schedule;
-	private int scheduleStartTime, scheduleEndTime;
+	private ArrayList<Job> schedule;
+	private int scheduleStartTime = -1;
+	private int scheduleEndTime = -1;
 	private ArrayList<Integer> jobStartTimes;
 	private ArrayList<Integer> jobDueTimes;
 	public ArrayList<Boolean> jobsDone;
@@ -21,26 +22,56 @@ public class Schedule implements Serializable {
 		jobDueTimes = new ArrayList<Integer>();
 		jobsDone = new ArrayList<Boolean>();
 	}
+	
+	public void set(int scheduleStartTime) {
+		this.scheduleStartTime = scheduleStartTime;
+		int timePointer = this.scheduleStartTime;
+		for ( int jobNr = 0; jobNr < schedule.size(); jobNr++ ) {
+			jobStartTimes.set( jobNr, timePointer );
+			timePointer +=  schedule.get(jobNr).getProcessingTime();
+			jobDueTimes.set( jobNr, timePointer );
+		}
+		scheduleEndTime = timePointer;
+	}
+	
+	public boolean add( Job job ) {
+		if ( this.scheduleStartTime < 0 ) {
+			System.out.println( "Schedule has not been initiated. Please provide an "
+					+ "int scheduleStartTime as well" );
+			return false;
+		}
+		int timePointer;
+		if ( schedule.size() == 0 ) {
+			timePointer = this.scheduleStartTime;
+		} else {
+			timePointer = this.scheduleEndTime;
+		}
+		jobStartTimes.add( timePointer );
+		timePointer +=  job.getProcessingTime();
+		jobDueTimes.add( timePointer );
+		jobsDone.add( false );
+		schedule.add( job );
+		this.scheduleEndTime = timePointer;
+		return true;
+	}
+	
+	public boolean add( Job job, int scheduleStartTime ) {
+		if ( this.scheduleStartTime < 0 ) {
+			this.scheduleStartTime = scheduleStartTime;
+			return add( job );
+		} else {
+			System.out.println( "Failed trying to add a job and a schedule start time "
+					+ "to a schedule that has already been initialized with a start time.");
+			return false;
+		}
+	}
+
+	public ArrayList<Job> getSchedule() {
+		return schedule;
+	}
 
 	public int getScheduleStartTime() {
 		return scheduleStartTime;
-	}
-
-	public void setScheduleStartTime(int scheduleStartTime) {
-		this.scheduleStartTime = scheduleStartTime;
-		jobStartTimes.clear();
-		jobDueTimes.clear();
-		jobsDone.clear();
-		int timePointer = this.scheduleStartTime;
-		
-		//TODO add a buffer?
-		for ( Job job : schedule ) {
-			jobStartTimes.add( timePointer );
-			timePointer +=  job.getProcessingTime();
-			jobDueTimes.add( timePointer );
-			jobsDone.add( false );
-		}
-		scheduleEndTime = timePointer;
 	}
 
 	public int getScheduleEndTime() {

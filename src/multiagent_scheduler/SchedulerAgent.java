@@ -32,7 +32,6 @@ public class SchedulerAgent extends Agent {
 		System.out.println("SchedulerAgent "+ getAID().getName() + " is ready.");
 		
 		// Find all other agents
-		// TODO: look for JobSupplierAgents only
 		try {
             SearchConstraints c = new SearchConstraints();
             c.setMaxResults (new Long(-1));

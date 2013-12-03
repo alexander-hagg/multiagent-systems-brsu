@@ -32,7 +32,7 @@ public class SystemClockAgent extends Agent {
             e.printStackTrace();
 		}
 
-		addBehaviour(new TickSystemBehaviour(this, 1000));	
+		addBehaviour(new TickSystemBehaviour(this, 200));	
 
 	}
 	

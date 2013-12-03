@@ -28,7 +28,6 @@ public class SystemTime extends CyclicBehaviour
     	   try {
     		   systemTime = (Integer) msg.getContentObject();
     	   } catch (UnreadableException e) {
-    		   // TODO Auto-generated catch block
     		   e.printStackTrace();
     	   }
        }

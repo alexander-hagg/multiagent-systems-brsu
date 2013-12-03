@@ -193,7 +193,6 @@ public class ParallelSchedulerAgent extends Agent {
 						subscribers.add( msg.getSender() );
 						nSchedule = calculateSchedule( joblist );
 						System.out.println( "Added subscriber to schedule: " + msg.getSender() + " and recalculated schedule" );
-						//TODO send confirmation to subscriber
 						ACLMessage reply = msg.createReply();
 						reply.setPerformative( ACLMessage.CONFIRM );
 						send( reply );
@@ -220,14 +219,12 @@ public class ParallelSchedulerAgent extends Agent {
 	    if ( joblist.size() > 0 && subscribers.size() > 0 ) {
 	    	for ( int i = 0; i < subscribers.size(); i++ ) {
 	    		Schedule singleMachineSchedule = new Schedule();
-	    		
+	    		singleMachineSchedule.set( ticker.systemTime );	
 	    		for ( int j = 0; i+j < joblist_.size(); j += subscribers.size() ) {
 	    			// add a setter to the schedule in Schedule class
-	    			singleMachineSchedule.schedule.add( joblist_.get(i+j) );
+	    			singleMachineSchedule.add( joblist_.get(i+j) );
 	    		}
-	    			
 	    		singleMachineSchedule.owner = subscribers.get(i);
-	    		singleMachineSchedule.setScheduleStartTime( ticker.systemTime );	
 	    		nSchedule_.add( singleMachineSchedule );
 	    	}
 	    }

@@ -37,6 +37,7 @@ public class ScheduleExecutionAgent extends Agent{
 	Schedule schedule = new Schedule();
 	private Set<Subscription> subscriptions = new HashSet<Subscription>();
 	SubscriptionManager sm;
+	private int lastFinishedJob;
 
 	protected void setup() {
 		System.out.println("ScheduleExecutionAgent "+ getAID().getName() + " is ready.");
@@ -74,10 +75,6 @@ public class ScheduleExecutionAgent extends Agent{
 			fe.printStackTrace();
 		}
 		
-		addBehaviour( new SubscribeQuery() );
-		addBehaviour( new ReceiveSchedule() );
-		
-		
 		// FIPA SUBPUBSTUFF
         sm = new SubscriptionManager() {
         	 
@@ -94,29 +91,23 @@ public class ScheduleExecutionAgent extends Agent{
 		MessageTemplate templateScheduleSubscription = MessageTemplate.and( MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET),
 				MessageTemplate.MatchContent("send-schedules"));
 		
+		lastFinishedJob = 0;
+
+		addBehaviour( new SubscribeQuery() );
+		addBehaviour( new ReceiveSchedule() );
 		addBehaviour( new ScheduleResponder(this, templateScheduleSubscription, sm) );
 		addBehaviour( new ScheduleResponse(this, 200) );
+		addBehaviour( new JobExecution(this, 200) );
 	}
 	
     private class ScheduleResponse extends TickerBehaviour {
 		private static final long serialVersionUID = 7170301332202656112L;
-		ScheduleExecutionAgent seaAgent;
 		public ScheduleResponse(Agent agent, long time) {
             super(agent, time);
-            seaAgent = (ScheduleExecutionAgent) agent;
         }
  
         public void onTick() {
             ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-            // TODO do not do this here! check for jobs done
-            
-            int count = 0;
-            for ( int jobDueTime: schedule.getJobDueTimes() ) {
-            	if (jobDueTime < seaAgent.ticker.systemTime) {
-            		schedule.jobsDone.set( count, true );
-            	}
-            	count++;
-            }
             
             try {
 				msg.setContentObject( schedule );
@@ -125,6 +116,25 @@ public class ScheduleExecutionAgent extends Agent{
 			}
             for ( Subscription subscription: ((ScheduleExecutionAgent)myAgent).subscriptions ) {
             	subscription.notify(msg);
+            }
+        }
+    }
+    
+    private class JobExecution extends TickerBehaviour {
+		private static final long serialVersionUID = 7170301332202656112L;
+		ScheduleExecutionAgent seaAgent;
+		public JobExecution(Agent agent, long time) {
+            super(agent, time);
+            seaAgent = (ScheduleExecutionAgent) agent;
+        }
+ 
+        public void onTick() {
+            for ( int currentJob = lastFinishedJob; currentJob < schedule.getJobDueTimes().size(); currentJob++ ) {
+            	if ( schedule.getJobDueTimes().get(currentJob) < seaAgent.ticker.systemTime) {
+            		schedule.jobsDone.set( currentJob, true );
+            		lastFinishedJob = currentJob + 1;
+            		break;
+            	}
             }
         }
     }
@@ -238,11 +248,11 @@ public class ScheduleExecutionAgent extends Agent{
 				ACLMessage msg = receive( templateSubscriptionSuccess );
 				if (msg != null) {
 					try {
-						schedule = (Schedule) msg.getContentObject();
-						// System.out.println("=================\nSCHEDULE RECEIVED" + getAID());
-						// print(schedule);
-						// System.out.println("\n=================");
-						
+						if ( schedule.getSchedule().size() > 0 ) {
+							//TODO What happens when schedule is already there? Keep track of jobs done! (->ContractNet)
+						} else {
+							schedule = (Schedule) msg.getContentObject();
+						}
 					} catch (UnreadableException e) {
 						e.printStackTrace();
 					}
